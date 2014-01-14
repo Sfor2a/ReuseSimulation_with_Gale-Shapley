@@ -1,7 +1,9 @@
 package mapdata;
 
+import simulation.Main;
+
 public class Rangefinder {
-	public Rangefinder ( ConnectPoint CP, int [][] RouteArray ) {
+	public Rangefinder ( Main CP, int [][] RouteArray ) {
 		
 		int PointNum = CP.getPitList ().size (); //地点の数
 		
@@ -37,7 +39,7 @@ public class Rangefinder {
 		
 	}
 	
-	private int getRouteCosts (ConnectPoint CP, String nam1, String nam2) { //道のコストを発見
+	private int getRouteCosts ( Main CP, String nam1, String nam2 ) { //道のコストを発見
 		int ret = 0;
 		for ( int i=0; i < CP.getRteList().size(); i++ ) {
 			if ( CP.getRteList().get(i).getTo().getName().equals ( nam1 ) && CP.getRteList().get(i).getFrom().getName().equals ( nam2 ) ) {

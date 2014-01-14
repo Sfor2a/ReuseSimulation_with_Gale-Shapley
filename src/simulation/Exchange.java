@@ -1,15 +1,15 @@
 package simulation;
 
-import housedata.HPAdata;
+import housedata.HAdata;
 import housedata.Housedata;
 
 public class Exchange {
 
-	public Exchange(Housedata A1, Housedata A2, HPAdata HPA, int TermCount, CostAndRangeRankingList lowScore ) {
-		HPAdata F1 = HPA; //‘ŠŽè‚Ì‚»‚Ì‰Æ‹ï‚ð‚à‚Á‚Ä‚­‚é
+	public Exchange(Housedata A1, Housedata A2, HAdata HPA, int TermCount, CostAndRangeRankingList lowScore ) {
+		HAdata F1 = HPA; //‘ŠŽè‚Ì‚»‚Ì‰Æ‹ï‚ð‚à‚Á‚Ä‚­‚é
 		int k = Integer.MAX_VALUE;
 		for ( int i = 0; i < A2.getFurnitureList().size(); i++ ) {
-			HPAdata F2 = A2.getFurnitureList().get(i);
+			HAdata F2 = A2.getFurnitureList().get(i);
 			if ( F2 == F1 )  k = i;
 		}
 		

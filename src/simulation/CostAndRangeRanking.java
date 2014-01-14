@@ -6,17 +6,17 @@ import java.util.List;
 
 
 
-import housedata.HPAdata;
+import housedata.HAdata;
 import housedata.Housedata;
 import housedata.ReadFile;
 import mapdata.ConnectPoint;
 
 public class CostAndRangeRanking {
 	private List < CostAndRangeRankingList > CARRList = new ArrayList <> ();
-	private HPAdata HPA2;
-	private ReadFile RF;
+	private HAdata HPA2;
+	private Main RF;
 	private int HouseNumber;
-	private ConnectPoint CP;
+	private Main CP;
 
 	//ゲッター・セッター
 	public List<CostAndRangeRankingList> getCARRList() {
@@ -25,23 +25,23 @@ public class CostAndRangeRanking {
 	public void setCARRList(CostAndRangeRankingList costAndRangeRankingList) {
 		CARRList.add (costAndRangeRankingList );
 	}
-	public HPAdata getHPA2 () {
+	public HAdata getHPA2 () {
 		return HPA2;
 	}
-	public void setHPA2 ( HPAdata HPAAA ) {
+	public void setHPA2 ( HAdata HPAAA ) {
 		HPA2 = HPAAA;
 	}
-	public ReadFile getRF () {
+	public Main getRF () {
 		return RF;
 	}
 
 	public CostAndRangeRanking () {
 		//MDD = new MinusDur();
 		RF = new ReadFile();
-		RF.CreatefromFile( ".\\recycle\\Houselist.txt" ); //家具リストの作成
+		RF.createHousedatafromFile( ".\\recycle\\Houselist.txt" ); //家具リストの作成
 		HouseNumber = RF.getHouseList ().size (); //家の数
 		CP = new ConnectPoint(); //地図モデル作成
-		CP.ConnectfromFile(".\\recycle\\Maptokyo.txt"); //地図モデル作成
+		CP.createMapfromFile(".\\recycle\\Maptokyo.txt"); //地図モデル作成
 		
 	}
 	
@@ -141,7 +141,7 @@ class CostAndRangeRankingList {
 	private Housedata C1;
 	private Housedata C2;
 	private int Score;
-	private HPAdata HPA1;
+	private HAdata HPA1;
 	
 	public int getCost() {
 		return Cost;
@@ -158,7 +158,7 @@ class CostAndRangeRankingList {
 	public int getScore() {
 		return Score;
 	}
-	public HPAdata getHPA () {
+	public HAdata getHPA () {
 		return HPA1;
 	}
 	public void setRange(int range) {
@@ -176,11 +176,11 @@ class CostAndRangeRankingList {
 	public void setA2(Housedata a2) {
 		C2 = a2;
 		}
-	public void setHPA ( HPAdata HPAA ) {
+	public void setHPA ( HAdata HPAA ) {
 		HPA1 = HPAA;
 	}
 	
-	public CostAndRangeRankingList ( int Co, int Ra, Housedata a1, Housedata a2, CostAndRangeRanking CARR, HPAdata HPA3 ) {
+	public CostAndRangeRankingList ( int Co, int Ra, Housedata a1, Housedata a2, CostAndRangeRanking CARR, HAdata HPA3 ) {
 		setCost ( Co );
 		setRange ( Ra );
 		setA1 ( a1 );

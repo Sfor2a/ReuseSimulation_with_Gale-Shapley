@@ -8,20 +8,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Housedata extends HouseElements {
-	public List < HPAdata > FurnitureList = new ArrayList <> (); //家具リスト
-	public List < Wishlist > WishList = new ArrayList <> (); //ほしいものリスト
+import simulation.Main;
+
+public class Housedata extends HouseElements { //家のデータを管理する
+	public List < HAdata > FurnitureList = new ArrayList <> (); //家具リスト
+	public List < HousesWish > WishList = new ArrayList <> (); //ほしいものリスト
 	private int Coin; //コイン
 	private static int HouseIDAdd; //ID加算
 	
 	//ゲッター・セッター
-	public List<HPAdata> getFurnitureList() {
+	public List<HAdata> getFurnitureList() {
 		return FurnitureList;
 	}
-	public List<Wishlist> getWishList() {
+	public List<HousesWish> getWishList() {
 		return WishList;
 	}
-	public void setWishList ( Wishlist WL ) {
+	public void setWishList ( HousesWish WL ) {
 		WishList.add ( WL );
 	}
 	public int getCoin() {
@@ -30,19 +32,19 @@ public class Housedata extends HouseElements {
 	public void setCoin(int coin) {
 		Coin = coin;
 	}
-	public void setFurnitureList ( HPAdata HPA ) {
+	public void setFurnitureList ( HAdata HPA ) {
 		FurnitureList.add ( HPA );
 	}
 
 	//ゲッター・セッター終了
 	
-	public Housedata ( String Nam, int Val, ReadFile RF ) {
+	public Housedata ( String Nam, int Val, Main main ) {
 		ID = HouseIDAdd++; //ID加算するだけ
 		setName ( Nam ); //家の名前セット
 		setCoin ( Val ); //いくらもってるかなー
 		reedingHPAName ( Nam ); //家具作りに行きます
 		reedingWishlistName ( Nam ); //希望価格リスト読み込む
-		RF.setHouseList ( this ); //おうちのリストにいれるよ
+		main.setHouseList ( this ); //おうちのリストにいれるよ
 	}
 	private void reedingHPAName ( String str1 ) { //家具作るよ
 		try {
@@ -81,7 +83,7 @@ public class Housedata extends HouseElements {
 					else System.out.println( "err." );
 					
 					if ( FurnitureAry[0] != null && FurnitureAry[1] != null && FurnitureAry[2] != null ) { //どちらも代入されたときに実行
-						new HPAdata ( FurnitureAry[0], FurnitureAry[3], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this ); //家具作ってくれ
+						new HAdata ( FurnitureAry[0], FurnitureAry[3], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this ); //家具作ってくれ
 						FurnitureAry [0] = null;
 						FurnitureAry [1] = null; //そしてともどもリセット
 						FurnitureAry [2] = null;
@@ -136,7 +138,7 @@ public class Housedata extends HouseElements {
 					
 					if ( FurnitureAry[0] != null && FurnitureAry[1] != null && FurnitureAry[2] != null && FurnitureAry[3] != null ) { //どちらも代入されたときに実行
 						if ( JJ == 0 ) { //強制的に1回はWishListにぶちこむ
-							new Wishlist ( FurnitureAry[0], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this, FurnitureAry[3] ); //ウィッシュリスト作ってくれ
+							new HousesWish ( FurnitureAry[0], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this, FurnitureAry[3] ); //ウィッシュリスト作ってくれ
 							JJ = 1;
 							FurnitureAry [0] = null;
 							FurnitureAry [1] = null;
@@ -147,11 +149,11 @@ public class Housedata extends HouseElements {
 						if ( FurnitureAry[0] != null && FurnitureAry[1] != null && FurnitureAry[2] != null && FurnitureAry[3] != null ) { //一度通されたものは上のif文でリセットされるから通らない
 							for ( int i = 0; i < WishList.size (); i++ ) { //WishList総当たり
 								if ( !WishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //WishListの中に名前のついた家具がないときに限り、新しいクラスとしてロード
-									new Wishlist ( FurnitureAry[0], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this, FurnitureAry[3] ); //ウィッシュリスト作ってくれ
+									new HousesWish ( FurnitureAry[0], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this, FurnitureAry[3] ); //ウィッシュリスト作ってくれ
 								}
 								else if ( WishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //同じ名前ついたのがあったとき
 									WishList.get ( i ).getWishValueList ().add ( 
-											new WishValueList ( WishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
+											new WishvValue ( WishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
 									WishList.get( i ).getWishValueList ().remove ( WishList.get( 0 ).getWishValueList ().size() - 1 ); //二度セットされるから1個消す（
 								}
 							}

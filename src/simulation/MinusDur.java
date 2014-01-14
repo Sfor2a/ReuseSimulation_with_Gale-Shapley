@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import newbuy.buybuy;
-import housedata.HPAdata;
+import housedata.HAdata;
 import housedata.Housedata;
-import housedata.ReadFile;
 
 
 public class MinusDur {	
-	List < HPAdata > doubleHPAList = new ArrayList <> (); //ダブり管理リスト
+	List < HAdata > doubleHPAList = new ArrayList <> (); //ダブり管理リスト
 	
 	//ゲッターセッター
-	private List < HPAdata > getdoubleList() {
+	private List < HAdata > getdoubleList() {
 		return doubleHPAList;
 	}
-	private void setdoubleList ( HPAdata HPA ) {
+	private void setdoubleList ( HAdata HPA ) {
 		doubleHPAList.add ( HPA );
 	}
 	
@@ -24,13 +23,13 @@ public class MinusDur {
 	public MinusDur () {
 	}
 	
-	public void Minus ( ReadFile RF ) {
+	public void Minus ( Main RF ) {
 		int HouseNumber = RF.getHouseList ().size (); //家の数
 		for ( int i = 0; i< HouseNumber; i++ ) { //全部の家に総当たり
 			Housedata TAISYOUHOUSE = RF.getHouseList ().get ( i ); //その家具が所属している家
-			List < HPAdata > iFurnitureList = TAISYOUHOUSE.getFurnitureList (); //長文書き換えｗ
+			List < HAdata > iFurnitureList = TAISYOUHOUSE.getFurnitureList (); //長文書き換えｗ
 			for ( int j = 0; j < iFurnitureList.size (); j++ ) { //その家の家具に総当たり
-				HPAdata TaisyouHPA = iFurnitureList.get ( j );//対象家具
+				HAdata TaisyouHPA = iFurnitureList.get ( j );//対象家具
 				MinusDurability ( TaisyouHPA ); //耐久度減産メソッド
 				NewHPABuy ( TaisyouHPA, RF, i, j, iFurnitureList, TAISYOUHOUSE ); //耐久度0の家具をさがして廃棄して、その分を購入(TaisyouHPAが該当かどうか調べる
 				int DA = doubleHPASearch ( TaisyouHPA, TAISYOUHOUSE, iFurnitureList ); //ダブり検索
@@ -40,7 +39,7 @@ public class MinusDur {
 		}
 	}
 
-	private void FireSale ( int j, Housedata tAISYOUHOUSE, List<HPAdata> iFurnitureList, HPAdata taisyouHPA, int k, int l, ReadFile RF ) { //耐久度の低い方を投げ売りします
+	private void FireSale ( int j, Housedata tAISYOUHOUSE, List<HAdata> iFurnitureList, HAdata taisyouHPA, int k, int l, Main RF ) { //耐久度の低い方を投げ売りします
 		if ( j >= 2 ) { //ダブってるときのみ動くメソッド
 			int Dur = Integer.MAX_VALUE; //耐久度検索用のキー
 			int II = Integer.MAX_VALUE; //記憶用のi
@@ -61,7 +60,7 @@ public class MinusDur {
 		}
 	}
 
-	private int doubleHPASearch( HPAdata taisyouHPA, Housedata tAISYOUHOUSE, List<HPAdata> iFurnitureList ) { //投げた対象家具がダブっているか検索
+	private int doubleHPASearch( HAdata taisyouHPA, Housedata tAISYOUHOUSE, List<HAdata> iFurnitureList ) { //投げた対象家具がダブっているか検索
 		String SearchKey = taisyouHPA.getName(); 
 		//ダブりしらベンぞ
 		int j = 0; //だぶり計算用
@@ -75,7 +74,7 @@ public class MinusDur {
 		return j;
 	}
 
-	private void NewHPABuy( HPAdata tAISYOU, ReadFile RF, int i, int j, List < HPAdata > iFurnitureList, Housedata TAISYOUHOUSE ) { //新規購入
+	private void NewHPABuy( HAdata tAISYOU, Main RF, int i, int j, List < HAdata > iFurnitureList, Housedata TAISYOUHOUSE ) { //新規購入
 		int NowDur = tAISYOU.getDurability(); //検索対象の家具の耐久度
 		if ( NowDur <= 0 ) {
 			System.out.println( TAISYOUHOUSE.getName() + "の" + tAISYOU.getName () + "が耐久度0になりました" );
@@ -85,7 +84,7 @@ public class MinusDur {
 		}
 	}
 
-	private void MinusDurability ( HPAdata TaisyouHPA ) { //耐久度減らすよ
+	private void MinusDurability ( HAdata TaisyouHPA ) { //耐久度減らすよ
 		if ( TaisyouHPA.getDurability () > 0 ) { //耐久度が0より大きいときだけ 
 			int NowDur = TaisyouHPA.getDurability () - TaisyouHPA.getMinusDur (); //耐久度を減らす
 			Double onepValue = (double) (TaisyouHPA.getMaxValue () / 100); //1%アタリのコストを求める
