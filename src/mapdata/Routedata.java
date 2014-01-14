@@ -1,9 +1,10 @@
 package mapdata;
 
 import simulation.Main;
+import simulation.Simulator;
 
 
-public class Routedata extends ConnectPoint_Elements {
+public class Routedata extends Map_Elements {
 	private Point From; //どこからきたの
 	private Point To; //どこへいくの
 	private int MoveCosts; //移動コスト
@@ -32,12 +33,12 @@ public class Routedata extends ConnectPoint_Elements {
 		return MoveCosts;
 	}
 	//ここまでゲッター部
-	public Routedata ( Main main, Point FromPoint, Point ToPoint, int Costs ) { //道をつくるよ
+	public Routedata ( Simulator simulator, Point FromPoint, Point ToPoint, int Costs ) { //道をつくるよ
 		ID = RouteNum++; //Route66　みたいな
 		setName ( FromPoint.getName () + ", " + ToPoint.getName () ); //横浜横須賀道路的な名前
 		setFrom ( FromPoint ); //どこからか
 		setTo ( ToPoint ); //どこへいくか
 		setMoveCosts ( Costs ); //コストをセット
-		main.setRoute ( this ); //道路を定義
+		simulator.setRoute ( this ); //道路を定義
 	}
 }

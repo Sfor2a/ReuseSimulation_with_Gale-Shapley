@@ -2,7 +2,7 @@ package simulation;
 
 import housedata.HAdata;
 import housedata.Housedata;
-import housedata.WishvValue;
+import housedata.HAsWishValue;
 
 public class ExchangeHPASearch {
 	private int Cost = ( Integer.MAX_VALUE ) / 1000;
@@ -28,7 +28,7 @@ public class ExchangeHPASearch {
 	
 	
 	private void ExchangeFurnitureS ( Housedata A1, Housedata A2, int i, int j, int k ) { //対象家具をスペックで絞れたら
-		WishvValue A1WVL = A1.getWishList().get(i).getWishValueList().get(k);
+		HAsWishValue A1WVL = A1.getWishList().get(i).getWishValueList().get(k);
 		int str1 = A1WVL.getDurability(); //自分の希望耐久度帯
 		int str2 = A2.getFurnitureList ().get ( j ).getDurability(); //相手の耐久度
 		int str3 = A1WVL.getCost(); //そのときの希望価格 
@@ -41,7 +41,7 @@ public class ExchangeHPASearch {
 	
 	private void FurnitureSpec ( Housedata A1, Housedata A2, int i, int j ) { //交換の家具の選定
 		for ( int k = 0; k < A1.getWishList ().get ( i ).getWishValueList ().size (); k++ ) { //その家電のウィッシュリストの中から
-			WishvValue A1WVL = A1.getWishList().get(i).getWishValueList().get(k);
+			HAsWishValue A1WVL = A1.getWishList().get(i).getWishValueList().get(k);
 			int str1 = Integer.parseInt ( A1WVL.getSpec() ); //そのスペックをもってくる
 			int str2 = Integer.parseInt ( A2.getFurnitureList().get(j).getSpec() ); //一個ずつあいてのスペックをもってきて
 			int maxspecstr1 = ( int ) ( str1 * 1.1 );

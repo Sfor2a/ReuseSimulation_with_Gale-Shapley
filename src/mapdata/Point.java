@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import simulation.Main;
+import simulation.Simulator;
 
-public class Point extends ConnectPoint_Elements {
+public class Point extends Map_Elements {
 	private List < Routedata > RoutedataIn = new ArrayList <> (); //はいってくる道のリスト
 	private List < Routedata > RoutedataOut = new ArrayList <> (); //でていく道のリスト
 	private static int PointNum = 0; //加算用変数
@@ -62,14 +63,14 @@ public class Point extends ConnectPoint_Elements {
 	}
 	//ここまでゲッター部分
 		
-	public Point( Main main, String PointName, int sX, int sY, int sC) {
+	public Point( Simulator simulator, String PointName, int sX, int sY, int sC) {
 			ID = PointNum++; //ポイントができるたびに加算
 			setName ( PointName ); //引数の名前を適用
 			setX ( sX ); //X座標を設定
 			setY ( sY ); //Y座標を設定
 			System.out.println(sX+","+ sY);
 			setClassification ( sC ); //種別を定義　1.家 2.交差点
-			main.setPoint ( this ); //座標を定義
+			simulator.setPoint ( this ); //座標を定義
 	}
 }
 

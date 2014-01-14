@@ -31,7 +31,7 @@ public class CostAndRangeRanking {
 	public void setHPA2 ( HAdata HPAAA ) {
 		HPA2 = HPAAA;
 	}
-	public Main getRF () {
+	public Simulator getRF () {
 		return RF;
 	}
 

@@ -14,7 +14,7 @@ public class WriteOutData {
 	}
 	public void WriteOut ( CostAndRangeRanking CARR, int Term ) {
 		File file = new File ( ".\\recycle\\WriteOut\\WritedOut" + Term + "_data.txt" ); //‘‚«‚Şƒtƒ@ƒCƒ‹–¼
-		Main RR = CARR.getRF();
+		Simulator RR = CARR.getRF();
 		PrintWriter pw;
 		try {
 			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file ) ) );

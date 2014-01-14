@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import simulation.Main;
+import simulation.Simulator;
 
 public class Housedata extends HouseElements { //家のデータを管理する
 	public List < HAdata > FurnitureList = new ArrayList <> (); //家具リスト
@@ -38,13 +38,13 @@ public class Housedata extends HouseElements { //家のデータを管理する
 
 	//ゲッター・セッター終了
 	
-	public Housedata ( String Nam, int Val, Main main ) {
+	public Housedata ( String Nam, int Val, Simulator simulator ) {
 		ID = HouseIDAdd++; //ID加算するだけ
 		setName ( Nam ); //家の名前セット
 		setCoin ( Val ); //いくらもってるかなー
 		reedingHPAName ( Nam ); //家具作りに行きます
 		reedingWishlistName ( Nam ); //希望価格リスト読み込む
-		main.setHouseList ( this ); //おうちのリストにいれるよ
+		simulator.setHouseList ( this ); //おうちのリストにいれるよ
 	}
 	private void reedingHPAName ( String str1 ) { //家具作るよ
 		try {
@@ -153,7 +153,7 @@ public class Housedata extends HouseElements { //家のデータを管理する
 								}
 								else if ( WishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //同じ名前ついたのがあったとき
 									WishList.get ( i ).getWishValueList ().add ( 
-											new WishvValue ( WishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
+											new HAsWishValue ( WishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
 									WishList.get( i ).getWishValueList ().remove ( WishList.get( 0 ).getWishValueList ().size() - 1 ); //二度セットされるから1個消す（
 								}
 							}
