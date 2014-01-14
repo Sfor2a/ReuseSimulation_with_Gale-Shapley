@@ -27,7 +27,7 @@ public class MinusDur {
 		int HouseNumber = RF.getHouseList ().size (); //家の数
 		for ( int i = 0; i< HouseNumber; i++ ) { //全部の家に総当たり
 			Housedata TAISYOUHOUSE = RF.getHouseList ().get ( i ); //その家具が所属している家
-			List < HAdata > iFurnitureList = TAISYOUHOUSE.getFurnitureList (); //長文書き換えｗ
+			List < HAdata > iFurnitureList = TAISYOUHOUSE.getHAList (); //長文書き換えｗ
 			for ( int j = 0; j < iFurnitureList.size (); j++ ) { //その家の家具に総当たり
 				HAdata TaisyouHPA = iFurnitureList.get ( j );//対象家具
 				MinusDurability ( TaisyouHPA ); //耐久度減産メソッド
@@ -54,7 +54,7 @@ public class MinusDur {
 				if ( ID == iFurnitureList.get(i).getID() ) { //おなじＩＤの家電を発見後その家電は投げ売りに処す
 					//System.out.println(Dur+ " + " + II + " + " + j + " + " + ID + " " + tAISYOUHOUSE.getName() );
 					int Val = (int) (iFurnitureList.get(i).getTermValue() * 0.3); //1割で投げうる
-					RF.getHouseList ().get ( k ).getFurnitureList ().get ( l ).setTermValue( Val );
+					RF.getHouseList ().get ( k ).getHAList ().get ( l ).setTermValue( Val );
 				}
 			}
 		}

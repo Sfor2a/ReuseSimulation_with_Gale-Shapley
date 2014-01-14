@@ -101,32 +101,7 @@ public class CostAndRangeRanking {
 		}
 	}
 	
- 	private int MARange ( Housedata B1, Housedata B2, ConnectPoint CP ) { //最短距離を返すよ あるいみただのゲッター
-		int PointNum = CP.getPitList().size(); //地図モデルの行列
-		
-		int[][] RouteArray = new int [PointNum][PointNum]; //地図行列の初期化
-		for ( int i=0; i< PointNum; i++ ) {
-			for ( int j =0; j< PointNum; j++) {
-				RouteArray[i][j] = 0;
-			}
-		}
-		
-		String Name1 = B1.getName(); //家の名前を取得
-		String Name2 = B2.getName();
-		
-		for ( int i = 0; i < CP.getPitList().size(); i++ ) { //家の名前からルートを調べる
-			if ( Name1.equals ( CP.getPitList().get(i).getName() ) ) {
-				for ( int j = 0; j < CP.getPitList().size(); j++ ) {
-					if ( Name2.equals ( CP.getPitList().get(j).getName() ) ) {
-						MinimumAccess MA = new MinimumAccess ( RouteArray, PointNum, i, j, CP ); //行列とつなぎ先をいれて、距離とルートを返す
-						return MA.getLength();
-					}
-				}
-			}
-		}
-		return 0;
-	}
-	
+ 		
 	private int FurnitureCost ( Housedata A1, Housedata A2 ) { //家具のコストを返すよ
 		ExchangeHPASearch EFS = new ExchangeHPASearch ( A1, A2 );
 		setHPA2 ( EFS.getHPA() );

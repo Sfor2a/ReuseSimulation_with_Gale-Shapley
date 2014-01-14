@@ -31,7 +31,7 @@ public class HAsWishValue extends HouseElements {
 		setDurability ( Dur );
 		setCost ( cost );
 		setSpec ( spec );
-		WL.setValuelist ( this );
+		WL.setHAsWishVal ( this );
 	}
 
 }

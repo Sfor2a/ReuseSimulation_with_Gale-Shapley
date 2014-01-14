@@ -12,19 +12,19 @@ import simulation.Simulator;
 
 public class Housedata extends HouseElements { //家のデータを管理する
 	public List < HAdata > FurnitureList = new ArrayList <> (); //家具リスト
-	public List < HousesWish > WishList = new ArrayList <> (); //ほしいものリスト
+	public List < HousesWish > HousesWishList = new ArrayList <> (); //ほしいものリスト
 	private int Coin; //コイン
 	private static int HouseIDAdd; //ID加算
 	
 	//ゲッター・セッター
-	public List<HAdata> getFurnitureList() {
+	public List<HAdata> getHAList() {
 		return FurnitureList;
 	}
-	public List<HousesWish> getWishList() {
-		return WishList;
+	public List<HousesWish> getHousesWishList() {
+		return HousesWishList;
 	}
-	public void setWishList ( HousesWish WL ) {
-		WishList.add ( WL );
+	public void setHousesWish ( HousesWish WL ) {
+		HousesWishList.add ( WL );
 	}
 	public int getCoin() {
 		return Coin;
@@ -32,7 +32,7 @@ public class Housedata extends HouseElements { //家のデータを管理する
 	public void setCoin(int coin) {
 		Coin = coin;
 	}
-	public void setFurnitureList ( HAdata HPA ) {
+	public void setHAdata ( HAdata HPA ) {
 		FurnitureList.add ( HPA );
 	}
 
@@ -147,14 +147,14 @@ public class Housedata extends HouseElements { //家のデータを管理する
 						}
 						
 						if ( FurnitureAry[0] != null && FurnitureAry[1] != null && FurnitureAry[2] != null && FurnitureAry[3] != null ) { //一度通されたものは上のif文でリセットされるから通らない
-							for ( int i = 0; i < WishList.size (); i++ ) { //WishList総当たり
-								if ( !WishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //WishListの中に名前のついた家具がないときに限り、新しいクラスとしてロード
+							for ( int i = 0; i < HousesWishList.size (); i++ ) { //WishList総当たり
+								if ( !HousesWishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //WishListの中に名前のついた家具がないときに限り、新しいクラスとしてロード
 									new HousesWish ( FurnitureAry[0], Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), this, FurnitureAry[3] ); //ウィッシュリスト作ってくれ
 								}
-								else if ( WishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //同じ名前ついたのがあったとき
-									WishList.get ( i ).getWishValueList ().add ( 
-											new HAsWishValue ( WishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
-									WishList.get( i ).getWishValueList ().remove ( WishList.get( 0 ).getWishValueList ().size() - 1 ); //二度セットされるから1個消す（
+								else if ( HousesWishList.get ( i ).getName ().equals ( FurnitureAry[0] ) ) { //同じ名前ついたのがあったとき
+									HousesWishList.get ( i ).getHAsWishValList ().add ( 
+											new HAsWishValue ( HousesWishList.get ( i ), Integer.parseInt ( FurnitureAry[1] ), Integer.parseInt ( FurnitureAry[2] ), FurnitureAry[3] ) );
+									HousesWishList.get( i ).getHAsWishValList ().remove ( HousesWishList.get( 0 ).getHAsWishValList ().size() - 1 ); //二度セットされるから1個消す（
 								}
 							}
 						}						

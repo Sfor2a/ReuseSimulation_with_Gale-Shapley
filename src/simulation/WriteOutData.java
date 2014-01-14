@@ -22,8 +22,8 @@ public class WriteOutData {
 			for ( int i = 0; i < RR.getHouseList().size(); i++  ) {
 				pw.println ( RR.getHouseList().get(i).getName() );
 				pw.println ( "存在家電" );
-				for ( int j = 0; j < RR.getHouseList().get(i).getFurnitureList().size(); j++ ) {
-					HAdata A1 = RR.getHouseList().get(i).getFurnitureList().get(j);
+				for ( int j = 0; j < RR.getHouseList().get(i).getHAList().size(); j++ ) {
+					HAdata A1 = RR.getHouseList().get(i).getHAList().get(j);
 					pw.print ( "ID： " + A1.getID() + " " );
 					pw.print ( "名前： " + A1.getName() + " " );
 					pw.print ( "耐久度： " + A1.getDurability() + " " );
@@ -40,8 +40,8 @@ public class WriteOutData {
 		
 		try {
 			for ( int i = 0; i < RR.getHouseList().size(); i++  ) {
-				for ( int j = 0; j < RR.getHouseList().get(i).getFurnitureList().size(); j++ ) {
-					HAdata A1 = RR.getHouseList().get(i).getFurnitureList().get(j);
+				for ( int j = 0; j < RR.getHouseList().get(i).getHAList().size(); j++ ) {
+					HAdata A1 = RR.getHouseList().get(i).getHAList().get(j);
 					File file1 = new File ( ".\\recycle\\WriteOut\\WritedOutlog"+ A1.getID() +"_data.txt" ); //書き込むファイル名
 					pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file1, true ) ) );
 					pw.println( "=============" + Term + "ターム目=============" );

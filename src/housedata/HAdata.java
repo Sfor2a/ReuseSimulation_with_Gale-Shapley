@@ -58,7 +58,7 @@ public class HAdata extends HouseElements {
 		setMaxValue ( Val );
 		setMinusDur ( MD );
 		setSpec(spec);
-		HH.setFurnitureList ( this );
+		HH.setHAdata ( this );
 	}
 	
 	public boolean equals(Object obj){
