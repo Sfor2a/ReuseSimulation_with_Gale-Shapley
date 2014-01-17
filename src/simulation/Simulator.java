@@ -1,10 +1,7 @@
 package simulation;
 
-import housedata.HAsWishValue;
-import housedata.HouseElements;
-import housedata.Housedata;
-import mapdata.Point;
-import mapdata.Routedata;
+import housedata.*;
+import mapdata.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,14 +11,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 public class Simulator extends HouseElements {
 	
 	private List < Housedata > HouseList = new ArrayList <> (); //家のリスト 
 	private List < Point > PointList = new ArrayList <> (); //ポイントそのもののリスト
 	private List < Routedata > RouteList = new ArrayList <> (); //道のリスト
-	private int[][] proposeMatrix; //プロポーズ表買う側　２は契約　１はプロポーズ失敗か契約破棄
 	private int[][] RouteArray; //地図行列
+	
+	private int[][] proposeMatrix; //プロポーズ表買う側　２は契約　１はプロポーズ失敗か契約破棄
+	private List < Housedata > BuyHouse = new ArrayList <> (); //買いたい家のリスト
+	private List < Housedata > SellHouse = new ArrayList <> (); //売りたい家のリスト
+	private int[] BuyS; //買いたい側の婚約表
+	private int[] SellS; //売りたい側の婚約表
+	
+    private Random rnd = new Random(); //Randomクラスのインスタンス化
 	
 	
 	//セッター
@@ -61,6 +66,16 @@ public class Simulator extends HouseElements {
 		Routedata Rte = RouteList.get ( num );
 		return Rte;
 	}
+	
+	public Simulator() { //データの読み込み
+		//地図と家の作成
+		String HouseListData = ".\\recycle\\Houselist.txt";
+		String MapListData = ".\\recycle\\Maptokyo.txt";
+		createHousedatafromFile ( HouseListData );
+		createMapfromFile ( MapListData );
+		CreateMapMatrix(); //地図行列作成　いこうRouteArray[][]が地図行列になる
+	}
+	
 	
 	private void Flug ( int num, int lineNum, String str ) { //フラグによるエラー処理
 		switch ( num ) {
@@ -385,80 +400,120 @@ public class Simulator extends HouseElements {
 			else pos = next;			
 		}
 	}
-
-	//家電探索部
-	private void ExchangeHACostSearch ( Housedata A1, Housedata A2 ) { //家電の総当たりメソッド
-		for ( int i = 0; i < A1.getHousesWishList().size(); i++ ) {
-			for ( int j = 0; j < A2.getHAList().size(); j++ ) {
-				String str1 = A1.getHousesWishList ().get ( i ).getName ();
-				String str2 = A2.getHAList().get(j).getName();
-				if ( str1.equals ( str2 ) ) SearchFurnitureSpec( A1, A2, i, j );
-			}
-		}
-	}
-	private void SearchFurnitureSpec ( Housedata A1, Housedata A2, int i, int j ) { //交換の家具の選定
-		for ( int k = 0; k < A1.getHousesWishList ().get ( i ).getHAsWishValList ().size (); k++ ) { //その家電のウィッシュリストの中から
-			HAsWishValue A1WVL = A1.getHousesWishList().get(i).getHAsWishValList().get(k);
-			int str1 = Integer.parseInt ( A1WVL.getSpec() ); //そのスペックをもってくる
-			int str2 = Integer.parseInt ( A2.getHAList().get(j).getSpec() ); //一個ずつあいてのスペックをもってきて
-			int maxspecstr1 = ( int ) ( str1 * 1.1 );
-			int minspecstr1 = ( int ) ( str1 * 0.9 );
-			if ( maxspecstr1 > str2 && minspecstr1 < str2 ) { //相手の家具のスペックと自分のものとのスペックの差が１割以内なら
-				CostSearch ( A1, A2, i, j, k ); //対象交換家電の価格を選定
-			}
-		}
-	}
-	private void CostSearch ( Housedata A1, Housedata A2, int i, int j, int k ) { //対象家具をスペックで絞れたら
-		HAsWishValue A1WVL = A1.getHousesWishList().get(i).getHAsWishValList().get(k);
-		int str1 = A1WVL.getDurability(); //自分の希望耐久度帯
-		int str2 = A2.getHAList ().get ( j ).getDurability(); //相手の耐久度
-		int str3 = A1WVL.getCost(); //そのときの希望価格 
-		int str4 = A2.getHAList ().get ( j ).getTermValue(); //相手の現在家電の価格
-		if ( str2 >= str1 && str3 >= str4 ) {
-			//そのときの対象家電と対象家電の価格ぶちこむ
-			//setHPAdata ( A2.getHAList ().get ( j ) );	
-			//setCost ( str4 );
-		}
-	}
-	
-	
-	
+		
 	//安定マッチング表のリセット
-	private void ResetSheet () { //表のリセット
-		int HouseNumber = getHouseList().size(); //すべての家の数
-		proposeMatrix = new int [HouseNumber][HouseNumber];
+	private void ResetSheet (int EntryNum) { //表のリセット
+		proposeMatrix = new int [EntryNum][EntryNum]; //表の再定義
+		BuyS = new int[EntryNum];
+		SellS = new int[EntryNum];
 		for ( int i = 0; i < proposeMatrix.length; i++ ) { //プロポーズ表のリセット
 			for ( int j = 0; j < proposeMatrix[0].length; j++ ) {
 				proposeMatrix[i][j] = 0;
 			}
 		}
-		for ( int i = 0; i < ManS.length; i++ ) { //男性婚約表のリセット
-				ManS[i] = Integer.MAX_VALUE;
+		for ( int i = 0; i < BuyS.length; i++ ) { //買いたい側婚約表のリセット
+				BuyS[i] = Integer.MAX_VALUE;
 		}
-		for ( int i = 0; i < WomanS.length; i++ ) { //女性婚約表のリセット
-			WomanS[i] = Integer.MAX_VALUE;
+		for ( int i = 0; i < SellS.length; i++ ) { //売りたい側婚約表のリセット
+			SellS[i] = Integer.MAX_VALUE;
 		}
 	}
 	
-	public void SimulationStart ( ) { //シミュレーション実行部
-		//地図と家の作成
-		String HouseListData = ".\\recycle\\Houselist.txt";
-		String MapListData = ".\\recycle\\Maptokyo.txt";
-		createHousedatafromFile ( HouseListData );
-		createMapfromFile ( MapListData );
-		CreateMapMatrix(); //地図行列作成
-		
-		//家の組み合わせの作成
-		int HouseNumber = getHouseList().size(); //すべての家の数
-		for ( int i = 0; i< HouseNumber; i++ ) { //すべての家から組み合わせを作る
-			for ( int j = 0; j < HouseNumber; j++ ) {
-				Housedata A1 = getHouseList ().get ( i ); //交換の主体
-				Housedata A2 = getHouseList ().get ( j ); //相手先
-				if ( A1 != A2 && A2 != A1 ) { //iとjが違うときだけ組み合わせとする
-					int Range = MARange ( A1, A2 ); //家同士の距離を見る
-					int Cost = ExchangeHACostSearch ( A1, A2 ); //交換家具が存在する場合コストを見る（存在しないと0）
-					new CostAndRangeRankingList ( Cost, Range, A1, A2, this, getHPA2() );
+	//お見合いエントリー部
+	private void SellHouseSelection ( int HouseNum ) { //売りたいと思う家を選び出す
+		for ( int i = 0; i < HouseNum; i++ ) { //すべての家について
+			Housedata Target = getHouseList ().get ( i );
+			if ( Target.getHAList().size() >= 2 ) SellHouse.add ( Target ); //売却条件１：ターゲットが冷蔵庫を２個持っているとき
+			else {
+				if ( Target.getHAList().size() != 0 ) { //家電を所持している場合にのみ実行
+					for (int j = 0; j < Target.getHAList().size();) {
+						int Count = Target.getHAList().get(j).getUseTernCount();
+						if ( Count >= 5 ) { //条件2：nターム以上つかったら飽きる　今は5
+							int ran = rnd.nextInt(100); //0～99までのうち１つを生成
+							if ( ran > 0 && ran < 49 ) { //条件2続き:n%の確率でターゲットを売りたいと思う家に指定 現在50%
+								if ( SellHouse.size() == 0 ) SellHouse.add(Target); //BuyHouseが空なら追加
+								else { //そうでなければ
+									if ( SellHouse.indexOf ( Target ) == -1 ) SellHouse.add(Target); //すでにターゲットが追加されていない場合に限り追加
+								}
+							}
+						}
+					}
 				}
+			}
+		}
+	}
+	private void BuyHouseSelection ( int HouseNum ) { //買いたい家を選びだす
+		for ( int i = 0; i < HouseNum; i++ ) { //その家電に飽きたかどうかを判断
+			Housedata Target = getHouseList ().get ( i );
+			if ( SellHouse.indexOf ( Target ) == -1 ) { //Targetがすでに売りたい家になっていないことが条件
+				if ( Target.getHAList().size() == 0 ) BuyHouse.add ( Target ); //買取条件１：ターゲットが冷蔵庫を0個持っているとき
+				else {
+					for (int j = 0; j < Target.getHAList().size();) {
+						int Count = Target.getHAList().get(j).getUseTernCount();
+						if ( Count >= 5 ) { //条件2：nターム以上つかったら飽きる　今は5
+							int ran = rnd.nextInt(100); //0～99までのうち１つを生成
+							if ( ran > 0 && ran < 49 ) { //条件2続き:n%の確率でターゲットをかいたいと思う家に指定 現在50%
+								if ( BuyHouse.size() == 0 ) BuyHouse.add(Target); //BuyHouseが空なら追加
+								else { //そうでなければ
+									if ( BuyHouse.indexOf ( Target ) == -1 ) BuyHouse.add(Target); //すでにターゲットが追加されていない場合に限り追加
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	private void sizeAdjust () { //売買する家の数を同数に調整
+		if ( BuyHouse.size() != SellHouse.size() ) { //売りたい家と買いたい家を同数にする
+			if ( BuyHouse.size() > SellHouse.size() ) { //売るほうが多いとき
+				int Diff = BuyHouse.size() - SellHouse.size();
+				for ( int i = 0; i < Diff; i++ ) BuyHouse.remove ( BuyHouse.size() - i - 1 ); //おしりから差の分だけ削除する
+			}
+			else { //買うほうが多いとき
+				int Diff = SellHouse.size() - BuyHouse.size();
+				for ( int i = 0; i < Diff; i++ ) SellHouse.remove ( SellHouse.size() - i - 1 ); //おしりから差の分だけ削除する
+			}
+		}
+	}
+	
+	//選考表作成部
+	private void preferencesheetCreator( Housedata Buy1, Housedata Sell1 ) {
+		int Mem_i = 0; //iの記憶用
+		if ( Sell1.getHAList ().size () >= 2 ) { //冷蔵庫を2こもっていれば耐久度のひくい方を手放すようにする
+			int LowDur = Integer.MAX_VALUE;
+			for( int i = 0; i < Sell1.getHAList().size(); i++ ) 
+				if ( LowDur >= Sell1.getHAList ().get ( i ).getDurability () ) Mem_i = i; //より耐久度の低いほうを取得する	
+		}
+		//比較用データ
+		HAdata setSellTargetHA = Sell1.getHAList ().get ( Mem_i ); //2個なければ１個目、２こあれば上できりかえたどちらかを使う。
+		int setSellDur = setSellTargetHA.getDurability();
+		int setSellSpec = Integer.parseInt( setSellTargetHA.getSpec() );
+		int setSellValue = setSellTargetHA.getTermValue();
+		
+		int setBuySpec = 0;
+		HAdata setBuyTagetHA = Buy1.getHAList().get(0); //買いたい家の比較用家電
+		for ( int i = 0; i < Buy1.getHousesWishList().get(0).getHAsWishValList().size(); i++ ) {
+			Buy1.getHousesWishList().get(0).getHAsWishValList().get(i);
+			if ( setSellDur > Buy1.getHousesWishList().get(0).getHAsWishValList().get(i).getDurability() )		
+		}
+		
+	}
+	
+	
+	
+	public void SimulationStart ( ) { //冷蔵庫に限定したシミュレーション実行部
+		//お見合いエントリー
+		int HouseNumber = getHouseList ().size (); //すべての家の数
+		SellHouseSelection ( HouseNumber ); //売りたい家選び
+		BuyHouseSelection ( HouseNumber ); //買いたい家選び
+		sizeAdjust(); //売買家調整
+		ResetSheet ( BuyHouse.size() ); //表のリセット
+		
+		//お見合い相手に対する選好表を作成
+		for ( int i = 0; i < BuyHouse.size(); i++ ) {
+			for ( int j = 0; j < SellHouse.size(); j++ ) {
+				preferencesheetCreator( BuyHouse.get ( i ), SellHouse.get ( j ) );
 			}
 		}
 		

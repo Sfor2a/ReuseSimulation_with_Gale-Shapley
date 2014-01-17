@@ -1,6 +1,5 @@
 package mapdata;
 
-import simulation.Main;
 import simulation.Simulator;
 
 

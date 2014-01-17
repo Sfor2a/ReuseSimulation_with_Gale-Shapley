@@ -6,15 +6,8 @@ public class Main {
 
 	
 	public static void main(String[] args) {
-		CostAndRangeRanking CRR = new CostAndRangeRanking ();
-		
-		for ( int i = 0; i<25; i++ ) {
-			System.out.println(i+"ターン目");
-			CRR.CARRCreate(i); //ランクを作り、交換し
-			WriteOutData WOR = new WriteOutData();
-			WOR.WriteOut ( CRR, i ); //結果を出す
-		}
-
+		Simulator Sim1 = new Simulator(); //地図と家の読み込みをコンストラクタで行う、以降のシミュはsim1.simstartを動かすと１ターム実行される
+	
 	}
 
 	

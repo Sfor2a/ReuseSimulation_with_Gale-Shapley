@@ -8,6 +8,7 @@ public class HAdata extends HouseElements {
 	private int TermValue; //耐久度減少後の価格（減少度つかわんならこっちもな
 	private int Exchangecount; //交換回数（ｒｙ
 	private static int HPAIDadd; //ID加算
+	private int UseTernCount;
 	
 	//ゲッターセッター
 	public int getDurability() {
@@ -46,6 +47,12 @@ public class HAdata extends HouseElements {
 	public void setSpec(String spec) {
 		Spec = spec;
 	}
+	public int getUseTernCount() {
+		return UseTernCount; 
+	}
+	public void setUseTernCount ( int Utc ) {
+		UseTernCount = Utc; 
+	}
 	//ここまでゲッターセッター
 	
 
@@ -58,6 +65,7 @@ public class HAdata extends HouseElements {
 		setMaxValue ( Val );
 		setMinusDur ( MD );
 		setSpec(spec);
+		setUseTernCount ( 0 );
 		HH.setHAdata ( this );
 	}
 	

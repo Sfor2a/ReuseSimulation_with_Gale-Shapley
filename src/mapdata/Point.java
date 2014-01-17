@@ -3,7 +3,6 @@ package mapdata;
 import java.util.ArrayList;
 import java.util.List;
 
-import simulation.Main;
 import simulation.Simulator;
 
 public class Point extends Map_Elements {
