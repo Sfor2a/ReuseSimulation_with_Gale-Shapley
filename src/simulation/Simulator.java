@@ -641,15 +641,21 @@ public class Simulator extends HouseElements {
 		} while ( flug == 1 ); //未婚約の人を処理
 	}
 	//リユース実行部
-	private void DoReuse() {
+	private void DoReuse() { //リユースを行う
 		for ( int i = 0; i < BuyS.length; i++ ) {
 			for ( int j = 0; j < getScoreList().size(); j++ ) {
 				Score ReuseTarget = null;
 				if ( getScoreList ().get ( j ).getBuyHouse() == BuyHouse.get(i) && 
 						getScoreList ().get ( j ).getSellHouse() == SellHouse.get( BuyS[i] ) ) ReuseTarget = getScoreList ().get ( j );
-				if ( ReuseTarget !=null ) {
-					getHouseList ().indexOf ( ReuseTarget.getSellHouse () );
-					getHouseList ().indexOf ( ReuseTarget.getBuyHouse () );
+				if ( ReuseTarget !=null ) { //スコアリストから売却する家と購入する家の対象を探す
+					int BuyHouseNum = getHouseList ().indexOf ( ReuseTarget.getSellHouse () ); //買う家を探す
+					int SellHouseNum = getHouseList ().indexOf ( ReuseTarget.getBuyHouse () ); //売る家を探す
+					int SellHANum = getHouseList ().get ( SellHouseNum ).getHAList ().indexOf ( ReuseTarget.getSellHA() ); //売却家電を探す
+					getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).setExchangecount ( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).getExchangecount () + 1 ); //リユース回数を増やす
+					getHouseList ().get( BuyHouseNum ).setHAdata( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ) ); //リユース対象家電を移動
+					getHouseList ().get( SellHouseNum ).getHAList ().remove ( SellHANum ); //移動終了
+					getHouseList ().get( BuyHouseNum ).setCoin ( getHouseList ().get( BuyHouseNum ).getCoin() - ReuseTarget.getScoreforSell() ); //お金の支払い
+					getHouseList ().get( SellHouseNum ).setCoin ( getHouseList ().get( SellHouseNum ).getCoin() + ReuseTarget.getScoreforSell() ); //お金の受け取り
 				}
 			}
 		}
@@ -663,19 +669,24 @@ public class Simulator extends HouseElements {
 		BuyHouseSelection ( HouseNumber ); //買いたい家選び
 		sizeAdjust(); //売買家調整
 		ResetSheet ( BuyHouse.size (), SellHouse.size () ); //表のリセット
-		//選考表作成・安定結婚システム
-		for ( int i = 0; i < BuyHouse.size(); i++ ) { //お見合い相手に対するスコアを作成
-			for ( int j = 0; j < SellHouse.size(); j++ ) {
-				ScoreCreator( BuyHouse.get ( i ), SellHouse.get ( j ) ); //iにたいしてすべてのjのスコアを確認
+		if ( BuyHouse.size() != 0 && SellHouse.size() != 0 ) {
+			//選考表作成・安定結婚システム
+			for ( int i = 0; i < BuyHouse.size(); i++ ) { //お見合い相手に対するスコアを作成
+				for ( int j = 0; j < SellHouse.size(); j++ ) {
+					ScoreCreator( BuyHouse.get ( i ), SellHouse.get ( j ) ); //iにたいしてすべてのjのスコアを確認
+				}
 			}
+			preferanceSheetCreator(); //スコアリストから選考表の作成
+			MatchSystem(); //安定結婚システムを動かす BuyS[]に取引相手が収まっている
+			
+			//リユース
+			DoReuse();
 		}
-		preferanceSheetCreator(); //スコアリストから選考表の作成
-		MatchSystem(); //安定結婚システムを動かす BuyS[]に取引相手が収まっている
 		
-		//リユース
-		DoReuse();
+		//ターン終了処理
+		//耐久度をへらし
+		//使用回数を増やす
 		
-		
+		else System.out.println("リユースなし");
 	}
-
 }
