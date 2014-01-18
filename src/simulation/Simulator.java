@@ -320,7 +320,6 @@ public class Simulator extends HouseElements {
 				
 				RouteArray[i][l] = (int) Length * Costs; //距離を代入（おもて
 				RouteArray[l][i] = (int) Length * Costs ; //距離を代入（うら
-				//System.out.println((int)Length + ","+Costs);
 			}
 			
 		}
@@ -660,6 +659,8 @@ public class Simulator extends HouseElements {
 			}
 		}
 	}
+	
+	
 	
 	//シミュレータ本体
 	public void SimulationStart () { //冷蔵庫に限定したシミュレーション実行部
