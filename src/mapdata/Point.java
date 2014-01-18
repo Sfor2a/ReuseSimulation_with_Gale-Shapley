@@ -67,7 +67,6 @@ public class Point extends Map_Elements {
 			setName ( PointName ); //引数の名前を適用
 			setX ( sX ); //X座標を設定
 			setY ( sY ); //Y座標を設定
-			System.out.println(sX+","+ sY);
 			setClassification ( sC ); //種別を定義　1.家 2.交差点
 			simulator.setPoint ( this ); //座標を定義
 	}

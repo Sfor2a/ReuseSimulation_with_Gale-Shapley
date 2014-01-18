@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -23,8 +24,12 @@ public class Simulator extends HouseElements {
 	private int[][] proposeMatrix; //プロポーズ表買う側　２は契約　１はプロポーズ失敗か契約破棄
 	private List < Housedata > BuyHouse = new ArrayList <> (); //買いたい家のリスト
 	private List < Housedata > SellHouse = new ArrayList <> (); //売りたい家のリスト
+	private List < Score > ScoreList = new ArrayList <> (); //選考表作成のタメのリスト
 	private int[] BuyS; //買いたい側の婚約表
 	private int[] SellS; //売りたい側の婚約表
+	private int[][] BuyQ; //買いたい側の選好表
+	private int[][] SellQ; //売りたい側の選好表
+	private int[][] SellQRev; //売りたい側の逆選好表
 	
     private Random rnd = new Random(); //Randomクラスのインスタンス化
 	
@@ -41,6 +46,9 @@ public class Simulator extends HouseElements {
 	}
 	public void setRouteArraysize ( int size ) {
 		RouteArray = new int [size][size];
+	}
+	public void setScoreList ( Score sco ) { //スコアリストセッター
+		ScoreList.add ( sco ); 
 	}
 	//ゲッター	
 	public List < Housedata > getHouseList () { //Houseリストそのもののゲッター
@@ -65,6 +73,9 @@ public class Simulator extends HouseElements {
 	public Routedata getRoute ( int num ) { //指定番号の道のゲッター
 		Routedata Rte = RouteList.get ( num );
 		return Rte;
+	}
+	public List < Score > getScoreList () { //スコアﾘｽﾄのゲッター
+		return ScoreList;
 	}
 	
 	public Simulator() { //データの読み込み
@@ -402,21 +413,43 @@ public class Simulator extends HouseElements {
 	}
 		
 	//安定マッチング表のリセット
-	private void ResetSheet (int EntryNum) { //表のリセット
-		proposeMatrix = new int [EntryNum][EntryNum]; //表の再定義
-		BuyS = new int[EntryNum];
-		SellS = new int[EntryNum];
-		for ( int i = 0; i < proposeMatrix.length; i++ ) { //プロポーズ表のリセット
-			for ( int j = 0; j < proposeMatrix[0].length; j++ ) {
-				proposeMatrix[i][j] = 0;
+	private void ResetSheet (int EntryNumBuy, int EntryNumSell ) { //表のリセット
+		if ( EntryNumBuy == EntryNumSell ) { //念のため売買の家が同数かを確認
+			int EntryNum = EntryNumBuy;
+			proposeMatrix = new int [EntryNum][EntryNum]; //表の再定義
+			BuyS = new int [EntryNum];
+			SellS = new int [EntryNum];
+			BuyQ = new int [EntryNum][EntryNum];
+			SellQ = new int [EntryNum][EntryNum];
+			SellQRev = new int [EntryNum][EntryNum];
+			for ( int i = 0; i < proposeMatrix.length; i++ ) { //プロポーズ表のリセット
+				for ( int j = 0; j < proposeMatrix[0].length; j++ ) {
+					proposeMatrix[i][j] = 0;
+				}
+			}
+			for ( int i = 0; i < BuyQ.length; i++ ) { //買う側選好表のリセット
+				for ( int j = 0; j < BuyQ[0].length; j++ ) {
+					BuyQ[i][j] = 0;
+				}
+			}
+			for ( int i = 0; i < SellQ.length; i++ ) { //売る側選好表のリセット
+				for ( int j = 0; j < SellQ[0].length; j++ ) {
+					SellQ[i][j] = 0;
+				}
+			}
+			for ( int i = 0; i < SellQRev.length; i++ ) { //逆選好表のリセット
+				for ( int j = 0; j < SellQRev[0].length; j++ ) {
+					SellQRev[i][j] = 0;
+				}
+			}
+			for ( int i = 0; i < BuyS.length; i++ ) { //買いたい側婚約表のリセット
+					BuyS[i] = Integer.MAX_VALUE;
+			}
+			for ( int i = 0; i < SellS.length; i++ ) { //売りたい側婚約表のリセット
+				SellS[i] = Integer.MAX_VALUE;
 			}
 		}
-		for ( int i = 0; i < BuyS.length; i++ ) { //買いたい側婚約表のリセット
-				BuyS[i] = Integer.MAX_VALUE;
-		}
-		for ( int i = 0; i < SellS.length; i++ ) { //売りたい側婚約表のリセット
-			SellS[i] = Integer.MAX_VALUE;
-		}
+		else System.out.println ( "エラー：売買する家が同数ではありません" );
 	}
 	
 	//お見合いエントリー部
@@ -478,44 +511,175 @@ public class Simulator extends HouseElements {
 	}
 	
 	//選考表作成部
-	private void preferencesheetCreator( Housedata Buy1, Housedata Sell1 ) {
+	private void ScoreCreator( Housedata Buy1, Housedata Sell1 ) { //スコアを作成する
 		int Mem_i = 0; //iの記憶用
 		if ( Sell1.getHAList ().size () >= 2 ) { //冷蔵庫を2こもっていれば耐久度のひくい方を手放すようにする
 			int LowDur = Integer.MAX_VALUE;
 			for( int i = 0; i < Sell1.getHAList().size(); i++ ) 
 				if ( LowDur >= Sell1.getHAList ().get ( i ).getDurability () ) Mem_i = i; //より耐久度の低いほうを取得する	
 		}
-		//比較用データ
+		//比較用データ（売る側）
 		HAdata setSellTargetHA = Sell1.getHAList ().get ( Mem_i ); //2個なければ１個目、２こあれば上できりかえたどちらかを使う。
 		int setSellDur = setSellTargetHA.getDurability();
 		int setSellSpec = Integer.parseInt( setSellTargetHA.getSpec() );
 		int setSellValue = setSellTargetHA.getTermValue();
 		
-		int setBuySpec = 0;
-		HAdata setBuyTagetHA = Buy1.getHAList().get(0); //買いたい家の比較用家電
-		for ( int i = 0; i < Buy1.getHousesWishList().get(0).getHAsWishValList().size(); i++ ) {
-			Buy1.getHousesWishList().get(0).getHAsWishValList().get(i);
-			if ( setSellDur > Buy1.getHousesWishList().get(0).getHAsWishValList().get(i).getDurability() )		
+		//比較用データ（買う側）
+		int setBuySpec = 1;
+		int setBuyCost = 1;
+		HAdata setBuyTargetHA = null;
+		if ( Buy1.getHAList ().size () > 0 ) setBuyTargetHA = Buy1.getHAList ().get ( 0 ); //買いたい家の比較用家電を用意（家電もっていれば　もっていないと１，１，が適用
+		for ( int i = 0; i < Buy1.getHousesWishList ().get ( 0 ).getHAsWishValList ().size (); i++ ) {
+			Buy1.getHousesWishList ().get ( 0 ).getHAsWishValList ().get ( i );
+			if ( setSellDur > Buy1.getHousesWishList ().get ( 0 ).getHAsWishValList().get ( i ).getDurability () ) 
+				setBuyCost = Buy1.getHousesWishList ().get ( 0 ).getHAsWishValList ().get ( i ).getCost (); //相手の耐久度にふさわしい取引価格をもちだす
 		}
+		if ( setBuyTargetHA != null ) setBuySpec = Integer.parseInt ( setBuyTargetHA.getSpec () ); //家電が存在していればスペックを呼び出す
 		
+		//距離の呼び出し
+		int Dist = MARange ( Buy1, Sell1 );
+		//スコア作成 （スペックの割合＊耐久度＊取引価格の割合＊距離）
+		int ScoreBuy = ( ( setSellValue / setBuyCost ) * 100 ) * ( ( setSellSpec / setBuySpec ) * 100 ) * Dist * setSellDur; //買う側の相手へのスコア
+		int ScoreSell = setBuyCost; //売る側の相手へのスコア
+		new Score ( ScoreBuy, ScoreSell, Buy1, Sell1, setSellTargetHA, this ); //選考表を作成するためのスコアデータの作成
+	}
+	@SuppressWarnings("unchecked")
+	private void preferanceSheetCreator () { //選考表作成
+		List < Score > BuyScoreSortor = getScoreList(); //買う側の並び替えようリスト
+		Collections.sort ( BuyScoreSortor, new BuyScoreComparator () ); //買う側のスコアで並び替えする
+		int n = 0; //加算用n
+		for ( int i = 0; i < BuyHouse.size(); i++ ) { //マズは最初から順に買う側の選好表を作成する
+			for ( int j = 0; j < BuyScoreSortor.size(); j++ ) {
+				if ( BuyScoreSortor.get ( j ).getBuyHouse () == BuyHouse.get ( i ) ) {
+					int m = SellHouse.indexOf ( BuyScoreSortor.get ( j ).getSellHouse () ); //相手の家が売る家リストのm番目に該当するかをしらべる
+					BuyQ[i][n] = m; //好きな人が分かるので書き込み
+					n += 1; //次の好きな人を探せるようにする
+				}
+			}
+		}
+		n = 0; //nのリセット
+		List < Score > SellScoreSortor = getScoreList(); //売る側の並び替えようリスト
+		Collections.sort ( SellScoreSortor, new SellScoreComparator () ); //売る側のスコアで並び替えする
+		for ( int i = 0; i < SellHouse.size(); i++ ) { //最初から順に売る側の選好表を作成する
+			for ( int j = 0; j < SellScoreSortor.size(); j++ ) {
+				if ( SellScoreSortor.get ( j ).getSellHouse () == SellHouse.get ( i ) ) {
+					int m = BuyHouse.indexOf ( SellScoreSortor.get ( j ).getSellHouse () ); //相手の家が買う家リストのm番目に該当するかをしらべる
+					SellQ[i][n] = m; //好きな人が分かるので書き込み
+					n += 1; //次の好きな人を探せるようにする
+				}
+			}
+		}
+		BuyScoreSortor.clear();
+		SellScoreSortor.clear();
+		SellQRev = RevMaker ( SellQ, SellQRev ); //逆選考表の作成
+	}
+	private int[][] RevMaker ( int[][] peopleQ, int[][] QRev ) { //逆選考表をつくるよ
+		for ( int i = 0; i < peopleQ.length; i++ ) {
+			for ( int j = 0; j < peopleQ[0].length; j++ ) {
+				QRev[i][ peopleQ[i][j] ] = j;
+			}
+		}
+		return QRev;
 	}
 	
-	
-	
-	public void SimulationStart ( ) { //冷蔵庫に限定したシミュレーション実行部
+	//安定結婚システム
+	 private void ScoreCreator( Housedata Buy1, Housedata Sell1 ) {
+         int Mem_i = 0; //iの記憶用
+         if ( Sell1.getHAList ().size () >= 2 ) { //冷蔵庫を2こもっていれば耐久度のひくい方を手放すようにする
+                 int LowDur = Integer.MAX_VALUE;
+                 for( int i = 0; i < Sell1.getHAList().size(); i++ ) 
+                         if ( LowDur >= Sell1.getHAList ().get ( i ).getDurability () ) Mem_i = i; //より耐久度の低いほうを取得する        
+         }
+         //比較用データ
+         HAdata setSellTargetHA = Sell1.getHAList ().get ( Mem_i ); //2個なければ１個目、２こあれば上できりかえたどちらかを使う。
+         int setSellDur = setSellTargetHA.getDurability();
+         int setSellSpec = Integer.parseInt( setSellTargetHA.getSpec() );
+         int setSellValue = setSellTargetHA.getTermValue();
+         
+         int setBuySpec = 0;
+         HAdata setBuyTagetHA = Buy1.getHAList().get(0); //買いたい家の比較用家電
+         for ( int i = 0; i < Buy1.getHousesWishList().get(0).getHAsWishValList().size(); i++ ) {
+                 Buy1.getHousesWishList().get(0).getHAsWishValList().get(i);
+                 if ( setSellDur > Buy1.getHousesWishList().get(0).getHAsWishValList().get(i).getDurability() )                
+         }
+         
+ }
+	private void MatchSystem () { //マッチシステム
+		int PartnerJ = 0; //第1希望のパートナーを選ぶ変数
+		int flug = 1; //終了フラグ
+		do {
+			flug = 0; //フラグは折っておく
+			for ( int i = 0; i < BuyHouse.size(); i++ ) {
+				if ( BuyS[i] == Integer.MAX_VALUE ) { //結婚していないとき、結婚相手を探す
+					if ( proposeMatrix[i][ BuyQ[i][PartnerJ] ] == 0 ) { //対象にプロポーズしているかを調べる、プロポーズしていない場合
+						if ( SellS[BuyQ[i][PartnerJ]] == Integer.MAX_VALUE ) { //対象が未婚
+							SellS[BuyQ[i][PartnerJ]] = i; //iの人が一番結婚したい女性が独身ならばiの人と結婚する
+							BuyS[i] = BuyQ[i][PartnerJ]; //希望女性と結婚と書き込む
+							proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 2;//プロポーズ表を更新する 2だと結婚
+						}
+						else if ( SellS[ BuyQ[i][PartnerJ] ] < Integer.MAX_VALUE ) { //対象の女性が既に結婚していたら
+								if ( SellQRev[ BuyQ[i][PartnerJ] ][i] > SellQRev[ BuyQ[i][PartnerJ] ][ SellS[ BuyQ[i][PartnerJ] ] ] ) { //逆選考表の対象女性にとってiの人が上か、それとも今の結婚相手のが上かどうか
+									proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 1; //すでに結婚してる人のほうが好きなとき　は嫌われたのでプロポーズだけ
+								}
+								else if ( SellQRev[ BuyQ[i][PartnerJ] ][i] < SellQRev[ BuyQ[i][PartnerJ] ][ SellS[ BuyQ[i][PartnerJ] ] ] ) { //新しい人のが好き
+									proposeMatrix[ SellS[ BuyQ[i][PartnerJ] ] ][ BuyQ[i][PartnerJ] ] = 1; //婚約破棄
+									BuyS [ SellS[ BuyQ[i][PartnerJ] ] ] = Integer.MAX_VALUE; //二人ともいったん未婚に
+									SellS[ BuyQ[i][0] ] = Integer.MAX_VALUE;
+									proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 2; //新しい結婚
+									BuyS[i] = BuyQ[i][PartnerJ]; //お互いの結婚相手を変更
+									SellS[BuyQ[i][PartnerJ]] = i;
+								}					
+						}
+					}
+					else if ( proposeMatrix[i][ BuyQ[i][PartnerJ] ] > 0 ) { //対象がプロポーズしていたり結婚していた場合
+						PartnerJ += 1;
+						if ( SellS[BuyQ[i][PartnerJ]] == Integer.MAX_VALUE ) { //対象が未婚
+							SellS[BuyQ[i][PartnerJ]] = i; //iの人が一番結婚したい女性が独身ならばiの人と結婚する
+							BuyS[i] = BuyQ[i][PartnerJ]; //希望女性と結婚と書き込む
+							proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 2;//プロポーズ表を更新する 2だと結婚
+						}
+						else if ( SellS[ BuyQ[i][PartnerJ] ] < Integer.MAX_VALUE ) { //対象の女性が既に結婚していたら
+								if ( SellQRev[ BuyQ[i][PartnerJ] ][i] > SellQRev[ BuyQ[i][PartnerJ] ][ SellS[ BuyQ[i][PartnerJ] ] ] ) { //逆選考表の対象女性にとってiの人が上か、それとも今の結婚相手のが上かどうか
+									proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 1; //すでに結婚してる人のほうが好きなとき　は嫌われたのでプロポーズだけ
+								}
+								else if ( SellQRev[ BuyQ[i][PartnerJ] ][i] < SellQRev[ BuyQ[i][PartnerJ] ][ SellS[ BuyQ[i][PartnerJ] ] ] ) { //新しい人のが好き
+									proposeMatrix[ SellS[ BuyQ[i][PartnerJ] ] ][ BuyQ[i][PartnerJ] ] = 1; //婚約破棄
+									BuyS [ SellS[ BuyQ[i][PartnerJ] ] ] = Integer.MAX_VALUE; //二人ともいったん未婚に
+									SellS[ BuyQ[i][0] ] = Integer.MAX_VALUE;
+									proposeMatrix[i][ BuyQ[i][PartnerJ] ] = 2; //新しい結婚
+									BuyS[i] = BuyQ[i][PartnerJ]; //お互いの結婚相手を変更
+									SellS[BuyQ[i][PartnerJ]] = i;
+								}					
+						}
+					}
+				}
+			}
+			for ( int i = 0; i < BuyS.length; i++ ) { //フラグ処理
+				if ( BuyS[i] == Integer.MAX_VALUE ) flug = 1;
+			}
+		} while ( flug == 1 ); //未婚約の人を処理
+	}
+		//リユース
+	//シミュレータ本体
+	public void SimulationStart () { //冷蔵庫に限定したシミュレーション実行部
 		//お見合いエントリー
 		int HouseNumber = getHouseList ().size (); //すべての家の数
 		SellHouseSelection ( HouseNumber ); //売りたい家選び
 		BuyHouseSelection ( HouseNumber ); //買いたい家選び
 		sizeAdjust(); //売買家調整
-		ResetSheet ( BuyHouse.size() ); //表のリセット
+		ResetSheet ( BuyHouse.size (), SellHouse.size () ); //表のリセット
 		
-		//お見合い相手に対する選好表を作成
-		for ( int i = 0; i < BuyHouse.size(); i++ ) {
+		//選考表作成・安定結婚システム
+		for ( int i = 0; i < BuyHouse.size(); i++ ) { //お見合い相手に対するスコアを作成
 			for ( int j = 0; j < SellHouse.size(); j++ ) {
-				preferencesheetCreator( BuyHouse.get ( i ), SellHouse.get ( j ) );
+				ScoreCreator( BuyHouse.get ( i ), SellHouse.get ( j ) ); //iにたいしてすべてのjのスコアを確認
 			}
 		}
+		preferanceSheetCreator(); //スコアリストから選考表の作成
+		MatchSystem(); //安定結婚システムを動かす BuyS[]に取引相手が収まっている
+		
+		//リユース実行部
+		DoReuse();
 		
 		
 	}
