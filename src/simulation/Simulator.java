@@ -470,6 +470,7 @@ public class Simulator extends HouseElements {
 								}
 							}
 						}
+						else break;
 					}
 				}
 			}
@@ -492,6 +493,7 @@ public class Simulator extends HouseElements {
 								}
 							}
 						}
+						else break;
 					}
 				}
 			}
@@ -583,27 +585,6 @@ public class Simulator extends HouseElements {
 	}
 	
 	//安定結婚システム
-	 private void ScoreCreator( Housedata Buy1, Housedata Sell1 ) {
-         int Mem_i = 0; //iの記憶用
-         if ( Sell1.getHAList ().size () >= 2 ) { //冷蔵庫を2こもっていれば耐久度のひくい方を手放すようにする
-                 int LowDur = Integer.MAX_VALUE;
-                 for( int i = 0; i < Sell1.getHAList().size(); i++ ) 
-                         if ( LowDur >= Sell1.getHAList ().get ( i ).getDurability () ) Mem_i = i; //より耐久度の低いほうを取得する        
-         }
-         //比較用データ
-         HAdata setSellTargetHA = Sell1.getHAList ().get ( Mem_i ); //2個なければ１個目、２こあれば上できりかえたどちらかを使う。
-         int setSellDur = setSellTargetHA.getDurability();
-         int setSellSpec = Integer.parseInt( setSellTargetHA.getSpec() );
-         int setSellValue = setSellTargetHA.getTermValue();
-         
-         int setBuySpec = 0;
-         HAdata setBuyTagetHA = Buy1.getHAList().get(0); //買いたい家の比較用家電
-         for ( int i = 0; i < Buy1.getHousesWishList().get(0).getHAsWishValList().size(); i++ ) {
-                 Buy1.getHousesWishList().get(0).getHAsWishValList().get(i);
-                 if ( setSellDur > Buy1.getHousesWishList().get(0).getHAsWishValList().get(i).getDurability() )                
-         }
-         
- }
 	private void MatchSystem () { //マッチシステム
 		int PartnerJ = 0; //第1希望のパートナーを選ぶ変数
 		int flug = 1; //終了フラグ
@@ -659,7 +640,21 @@ public class Simulator extends HouseElements {
 			}
 		} while ( flug == 1 ); //未婚約の人を処理
 	}
-		//リユース
+	//リユース実行部
+	private void DoReuse() {
+		for ( int i = 0; i < BuyS.length; i++ ) {
+			for ( int j = 0; j < getScoreList().size(); j++ ) {
+				Score ReuseTarget = null;
+				if ( getScoreList ().get ( j ).getBuyHouse() == BuyHouse.get(i) && 
+						getScoreList ().get ( j ).getSellHouse() == SellHouse.get( BuyS[i] ) ) ReuseTarget = getScoreList ().get ( j );
+				if ( ReuseTarget !=null ) {
+					getHouseList ().indexOf ( ReuseTarget.getSellHouse () );
+					getHouseList ().indexOf ( ReuseTarget.getBuyHouse () );
+				}
+			}
+		}
+	}
+	
 	//シミュレータ本体
 	public void SimulationStart () { //冷蔵庫に限定したシミュレーション実行部
 		//お見合いエントリー
@@ -668,7 +663,6 @@ public class Simulator extends HouseElements {
 		BuyHouseSelection ( HouseNumber ); //買いたい家選び
 		sizeAdjust(); //売買家調整
 		ResetSheet ( BuyHouse.size (), SellHouse.size () ); //表のリセット
-		
 		//選考表作成・安定結婚システム
 		for ( int i = 0; i < BuyHouse.size(); i++ ) { //お見合い相手に対するスコアを作成
 			for ( int j = 0; j < SellHouse.size(); j++ ) {
@@ -678,7 +672,7 @@ public class Simulator extends HouseElements {
 		preferanceSheetCreator(); //スコアリストから選考表の作成
 		MatchSystem(); //安定結婚システムを動かす BuyS[]に取引相手が収まっている
 		
-		//リユース実行部
+		//リユース
 		DoReuse();
 		
 		

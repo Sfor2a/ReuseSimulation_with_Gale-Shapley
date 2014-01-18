@@ -50,7 +50,6 @@ public class Score {
 		setSellHA ( setSellTargetHA );
 		simulator.setScoreList ( this );		
 	}
-
 }
 
 @SuppressWarnings("rawtypes")
