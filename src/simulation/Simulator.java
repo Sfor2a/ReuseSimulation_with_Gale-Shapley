@@ -534,7 +534,9 @@ public class Simulator extends HouseElements {
 		//距離の呼び出し
 		int Dist = MARange ( Buy1, Sell1 );
 		//スコア作成 （スペックの割合＊耐久度＊取引価格の割合＊距離）
-		int ScoreBuy = ( ( setSellValue / setBuyCost ) * 100 ) * ( ( setSellSpec / setBuySpec ) * 100 ) * Dist * ( 100 / setSellDur ); //買う側の相手へのスコア
+		double ValuePercent = ( ( double ) setSellValue / ( double ) setBuyCost ) * 100;
+		double SpecPercent = ( ( double ) setSellSpec / ( double ) setBuySpec ) * 100;
+		int ScoreBuy = ( ( int ) ValuePercent * ( int ) SpecPercent * Dist * ( 100 / setSellDur ) ); //買う側の相手へのスコア
 		int ScoreSell = setBuyCost; //売る側の相手へのスコア
 		new Score ( ScoreBuy, ScoreSell, Buy1, Sell1, setSellTargetHA, this ); //選考表を作成するためのスコアデータの作成
 	}
@@ -661,7 +663,8 @@ public class Simulator extends HouseElements {
 				for ( int j = 0; j <getHouseList ().get ( i ).getHAList ().size (); j++ ) { //所持する全家電にたいし
 					getHouseList ().get ( i ).getHAList ().get( j ).setDurability ( getHouseList ().get ( i ).getHAList ().get( j ).getDurability ()
 							- getHouseList ().get ( i ).getHAList ().get( j ).getMinusDur () ) ; //耐久度を減産
-					double TermValue = getHouseList ().get ( i ).getHAList ().get( j ).getMaxValue() * ( (double)getHouseList ().get ( i ).getHAList ().get( j ).getDurability () / 100  );
+					double TermValue = ( double ) getHouseList ().get ( i ).getHAList ().get( j ).getMaxValue() *
+							( ( double ) getHouseList ().get ( i ).getHAList ().get( j ).getDurability () / ( double ) 100  ); //現在価格計算
 					getHouseList ().get ( i ).getHAList ().get( j ).setTermValue( ( int ) TermValue ); //新しい現在価格を設定					
 					getHouseList ().get ( i ).getHAList ().get( j ).setUseTernCount( getHouseList ().get ( i ).getHAList ().get( j ).getUseTernCount() + 1 ); //使用回数を増やす。
 				}
