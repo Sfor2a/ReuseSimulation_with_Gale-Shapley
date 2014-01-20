@@ -546,6 +546,7 @@ public class Simulator extends HouseElements {
 		Collections.sort ( BuyScoreSortor, new BuyScoreComparator () ); //買う側のスコアで並び替えする
 		int n = 0; //加算用n
 		for ( int i = 0; i < BuyHouse.size(); i++ ) { //マズは最初から順に買う側の選好表を作成する
+			n = 0; //毎回リセットしなさい
 			for ( int j = 0; j < BuyScoreSortor.size(); j++ ) {
 				if ( BuyScoreSortor.get ( j ).getBuyHouse () == BuyHouse.get ( i ) ) {
 					int m = SellHouse.indexOf ( BuyScoreSortor.get ( j ).getSellHouse () ); //相手の家が売る家リストのm番目に該当するかをしらべる
@@ -559,6 +560,7 @@ public class Simulator extends HouseElements {
 		Collections.sort ( SellScoreSortor, new SellScoreComparator () ); //売る側のスコアで並び替えする
 		for ( int i = 0; i < SellHouse.size(); i++ ) { //最初から順に売る側の選好表を作成する
 			for ( int j = 0; j < SellScoreSortor.size(); j++ ) {
+				n = 0; //毎回リセットしなさい
 				if ( SellScoreSortor.get ( j ).getSellHouse () == SellHouse.get ( i ) ) {
 					int m = BuyHouse.indexOf ( SellScoreSortor.get ( j ).getSellHouse () ); //相手の家が買う家リストのm番目に該当するかをしらべる
 					SellQ[i][n] = m; //好きな人が分かるので書き込み
@@ -566,7 +568,7 @@ public class Simulator extends HouseElements {
 				}
 			}
 		}
-		BuyScoreSortor.clear();
+		BuyScoreSortor.clear(); //並び替えようリストのクリア
 		SellScoreSortor.clear();
 		SellQRev = RevMaker ( SellQ, SellQRev ); //逆選考表の作成
 	}
