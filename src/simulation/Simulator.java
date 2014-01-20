@@ -15,12 +15,10 @@ import java.util.List;
 import java.util.Random;
 
 public class Simulator extends HouseElements {
-	
 	private List < Housedata > HouseList = new ArrayList <> (); //家のリスト 
 	private List < Point > PointList = new ArrayList <> (); //ポイントそのもののリスト
 	private List < Routedata > RouteList = new ArrayList <> (); //道のリスト
 	private int[][] RouteArray; //地図行列
-	
 	private int[][] proposeMatrix; //プロポーズ表買う側　２は契約　１はプロポーズ失敗か契約破棄
 	private List < Housedata > BuyHouse = new ArrayList <> (); //買いたい家のリスト
 	private List < Housedata > SellHouse = new ArrayList <> (); //売りたい家のリスト
@@ -30,9 +28,7 @@ public class Simulator extends HouseElements {
 	private int[][] BuyQ; //買いたい側の選好表
 	private int[][] SellQ; //売りたい側の選好表
 	private int[][] SellQRev; //売りたい側の逆選好表
-	
     private Random rnd = new Random(); //Randomクラスのインスタンス化
-	
 	//セッター
 	public void setHouseList ( Housedata Hus ) { //ハウスリストセッター
 		HouseList.add ( Hus ); 
@@ -85,8 +81,6 @@ public class Simulator extends HouseElements {
 		createMapfromFile ( MapListData );
 		CreateMapMatrix(); //地図行列作成　いこうRouteArray[][]が地図行列になる
 	}
-	
-	
 	private void Flug ( int num, int lineNum, String str ) { //フラグによるエラー処理
 		switch ( num ) {
 			case 1:
@@ -113,7 +107,6 @@ public class Simulator extends HouseElements {
 		}
 		System.out.println ( "( 行番号" + lineNum + ": " + str + " )" ); //エラーメッセージを出した後は、必ずそのエラーのある行をしめす
 	}
-	
 	//地図定義部
 	private Point findNamedPoint ( List < Point > Pit, String Name, String str, int CountLine ) { //同じ名前のポイントを見つけるメソッド
 		Point C = null; //用意してあげないとEclipseがエラー吐く
@@ -213,7 +206,6 @@ public class Simulator extends HouseElements {
 		    System.exit ( 0 );
 		}
 	}
-
 	//家のデータを読み込み家電のわりあてる部分
 	public void createHousedatafromFile ( String DataFolder ) { //引数にファイルの位置を投げるとファイルからライフサイクルを生成 こいつに渡されるのは家のリスト
 		try {
@@ -285,7 +277,6 @@ public class Simulator extends HouseElements {
 		    System.exit ( 0 );
 		}
 	}
-	
 	//地図行列作成部
 	private void CreateMapMatrix () { //地図行列作成
 		int PointNum = getPitList ().size (); //地点の数
@@ -332,7 +323,6 @@ public class Simulator extends HouseElements {
 		}
 		return ret;
 	}
-	
 	//最短経路問題解決部
 	private int MARange ( Housedata B1, Housedata B2 ) { //家のデータから最短距離を返すよ あるいみただのゲッター
 		int PointNum = getPitList().size(); //地図モデルの行列
@@ -409,7 +399,6 @@ public class Simulator extends HouseElements {
 			else pos = next;			
 		}
 	}
-
 	//お見合いエントリー部
 	private void SellHouseSelection ( int HouseNum ) { //売りたいと思う家を選び出す
 		for ( int i = 0; i < HouseNum; i++ ) { //すべての家について
@@ -466,8 +455,8 @@ public class Simulator extends HouseElements {
 				do SellHouse.remove(0);  while ( BuyHouse.size() != SellHouse.size() ); //あたまから同数になるまで削除する
 			}
 		}
+		System.out.println( SellHouse.size () + "," + BuyHouse.size () );
 	}
-	
 	//選考表作成部
 	private void ResetSheet (int EntryNumBuy, int EntryNumSell ) { //表のリセット
 		if ( EntryNumBuy == EntryNumSell ) { //念のため売買の家が同数かを確認
@@ -562,7 +551,7 @@ public class Simulator extends HouseElements {
 			for ( int j = 0; j < SellScoreSortor.size(); j++ ) {
 				n = 0; //毎回リセットしなさい
 				if ( SellScoreSortor.get ( j ).getSellHouse () == SellHouse.get ( i ) ) {
-					int m = BuyHouse.indexOf ( SellScoreSortor.get ( j ).getSellHouse () ); //相手の家が買う家リストのm番目に該当するかをしらべる
+					int m = BuyHouse.indexOf ( SellScoreSortor.get ( j ).getBuyHouse () ); //相手の家が買う家リストのm番目に該当するかをしらべる
 					SellQ[i][n] = m; //好きな人が分かるので書き込み
 					n += 1; //次の好きな人を探せるようにする
 				}
@@ -580,7 +569,6 @@ public class Simulator extends HouseElements {
 		}
 		return QRev;
 	}
-	
 	//安定結婚システム
 	private void MatchSystem () { //マッチシステム
 		int PartnerJ = 0; //第1希望のパートナーを選ぶ変数
@@ -648,6 +636,7 @@ public class Simulator extends HouseElements {
 					int BuyHouseNum = getHouseList ().indexOf ( ReuseTarget.getSellHouse () ); //買う家を探す
 					int SellHouseNum = getHouseList ().indexOf ( ReuseTarget.getBuyHouse () ); //売る家を探す
 					int SellHANum = getHouseList ().get ( SellHouseNum ).getHAList ().indexOf ( ReuseTarget.getSellHA() ); //売却家電を探す
+					getHouseList ().get ( SellHouseNum ).getHAList ().get ( SellHANum ).setUseTernCount ( 0 ); //使用対象が移動するので使用回数をリセット
 					getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).setExchangecount ( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).getExchangecount () + 1 ); //リユース回数を増やす
 					getHouseList ().get( BuyHouseNum ).setHAdata( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ) ); //リユース対象家電を移動
 					getHouseList ().get( SellHouseNum ).getHAList ().remove ( SellHANum ); //移動終了
@@ -657,7 +646,6 @@ public class Simulator extends HouseElements {
 			}
 		}
 	}
-	
 	//ターン終了処理部
 	private void MinusDurAllHA () { //全ての家電の耐久度を減じ、新たな現在価格を設定し、使用回数を増やす
 		for ( int i = 0 ; i < getHouseList ().size (); i++ ) { //全ての家の
@@ -678,7 +666,6 @@ public class Simulator extends HouseElements {
 		SellHouse.clear();
 		ScoreList.clear(); //スコアリストをクリア
 	}
-	
 	//シミュレータ本体
 	public void SimulationStart () { //冷蔵庫に限定したシミュレーション実行部
 		//お見合いエントリー
