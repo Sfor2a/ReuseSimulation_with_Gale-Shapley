@@ -28,6 +28,8 @@ public class Simulator extends HouseElements {
 	private int[][] BuyQ; //買いたい側の選好表
 	private int[][] SellQ; //売りたい側の選好表
 	private int[][] SellQRev; //売りたい側の逆選好表
+	private List < Integer > ScoreCheckerBuy = new ArrayList <> (); //ダブりスコアのチェック用リスト
+	private List < Integer > ScoreCheckerSell = new ArrayList <> ();
     private Random rnd = new Random(); //Randomクラスのインスタンス化
 	//セッター
 	public void setHouseList ( Housedata Hus ) { //ハウスリストセッター
@@ -455,7 +457,6 @@ public class Simulator extends HouseElements {
 				do SellHouse.remove(0);  while ( BuyHouse.size() != SellHouse.size() ); //あたまから同数になるまで削除する
 			}
 		}
-		System.out.println( SellHouse.size () + "," + BuyHouse.size () );
 	}
 	//選考表作成部
 	private void ResetSheet (int EntryNumBuy, int EntryNumSell ) { //表のリセット
@@ -526,7 +527,25 @@ public class Simulator extends HouseElements {
 		double ValuePercent = ( ( double ) setSellValue / ( double ) setBuyCost ) * 100;
 		double SpecPercent = ( ( double ) setSellSpec / ( double ) setBuySpec ) * 100;
 		int ScoreBuy = ( ( int ) ValuePercent * ( int ) SpecPercent * Dist * ( 100 / setSellDur ) ); //買う側の相手へのスコア
+		if ( ScoreCheckerBuy.size() == 0 ) {
+			ScoreCheckerBuy.add ( ScoreBuy ); //ダブってるスコアがないように加算する部分　スコアチェッカーが空ならチェッカーに追加
+		}
+		else { //なにかはいっているとき
+			if ( ScoreCheckerBuy.indexOf( ScoreBuy ) == -1 ) ScoreCheckerBuy.add ( ScoreBuy ); //チェックリストを確認し、該当がなければ追加
+			else { //該当があれば1加算して、追加する
+				ScoreBuy = ScoreBuy + 1;
+				ScoreCheckerBuy.add ( ScoreBuy );
+			}	
+		}
 		int ScoreSell = setBuyCost; //売る側の相手へのスコア
+		if ( ScoreCheckerSell.size() == 0 ) ScoreCheckerSell.add ( ScoreSell ); //ダブってるスコアがないように加算する部分　スコアチェッカーが空ならチェッカーに追加
+		else { //なにかはいっているとき
+			if ( ScoreCheckerSell.indexOf( ScoreSell ) == -1 ) ScoreCheckerSell.add ( ScoreSell ); //チェックリストを確認し、該当がなければ追加
+			else { //該当があれば1加算して、追加する
+				ScoreSell = ScoreSell + 1;
+				ScoreCheckerBuy.add ( ScoreSell );
+			}	
+		}
 		new Score ( ScoreBuy, ScoreSell, Buy1, Sell1, setSellTargetHA, this ); //選考表を作成するためのスコアデータの作成
 	}
 	@SuppressWarnings("unchecked")
@@ -571,6 +590,7 @@ public class Simulator extends HouseElements {
 	}
 	//安定結婚システム
 	private void MatchSystem () { //マッチシステム
+		System.out.println(BuyHouse.size() +"," + SellHouse.size());
 		int PartnerJ = 0; //第1希望のパートナーを選ぶ変数
 		int flug = 1; //終了フラグ
 		do {
@@ -681,14 +701,18 @@ public class Simulator extends HouseElements {
 					ScoreCreator( BuyHouse.get ( i ), SellHouse.get ( j ) ); //iにたいしてすべてのjのスコアを確認
 				}
 			}
+			ScoreCheckerBuy.clear();
+			ScoreCheckerSell.clear();
 			preferanceSheetCreator(); //スコアリストから選考表の作成
 			MatchSystem(); //安定結婚システムを動かす BuyS[]に取引相手が収まっている
 			DoReuse(); //リユース
+			System.out.print("リユースあり ");
 		}		
-		else System.out.println("リユースなし");
+		else System.out.print("リユースなし ");
 		
 		//ターン終了処理
 		MinusDurAllHA(); //耐久度をへらし使用回数を増やすなど
 		ClearList(); //リストを空にする
+		System.out.println("ターンエンド");
 	}
 }
