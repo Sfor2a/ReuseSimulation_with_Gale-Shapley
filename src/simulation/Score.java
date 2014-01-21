@@ -9,6 +9,7 @@ public class Score {
 	private Housedata BuyHouse; //買う側の家
 	private Housedata SellHouse; //売る側の家
 	private HAdata SellHA; //売るための家具
+	private int Dist; //距離
 	
 	//ゲッター・セッター
 	public int getScoreforBuy() {
@@ -41,14 +42,20 @@ public class Score {
 	public void setSellHA(HAdata sellHA) {
 		SellHA = sellHA;
 	}
-
-	public Score ( int scoreBuy, int scoreSell, Housedata buy1, Housedata sell1, HAdata setSellTargetHA, Simulator simulator ) { //スコアの生成
+	public int getDist() {
+		return Dist;
+	}
+	public void setDist(int dist) {
+		Dist = dist;
+	}
+	public Score ( int scoreBuy, int scoreSell, Housedata buy1, Housedata sell1, HAdata setSellTargetHA, Simulator simulator, int dist ) { //スコアの生成
 		setScoreforBuy ( scoreBuy );
 		setScoreforSell ( scoreSell );
 		setBuyHouse ( buy1 );
 		setSellHouse ( sell1 );
 		setSellHA ( setSellTargetHA );
-		simulator.setScoreList ( this );		
+		simulator.setScoreList ( this );
+		setDist ( dist );
 	}
 }
 

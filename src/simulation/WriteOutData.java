@@ -1,6 +1,5 @@
 package simulation;
 
-import housedata.HAdata;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,50 +8,49 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class WriteOutData {
-	public WriteOutData() {
-		
-	}
-	public void WriteOut ( CostAndRangeRanking CARR, int Term ) {
-		File file = new File ( ".\\recycle\\WriteOut\\WritedOut" + Term + "_data.txt" ); //書き込むファイル名
-		Simulator RR = CARR.getRF();
+	
+	File file = new File ( ".\\recycle\\WriteOut\\WritedOut_data.csv" ); //書き込むファイル名
+	
+	public WriteOutData ( int SellNum, int BuyNum ) { //初期売買希望人数
 		PrintWriter pw;
 		try {
-			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file ) ) );
-			pw.println( "=============" + Term + "ターム目=============" );
-			for ( int i = 0; i < RR.getHouseList().size(); i++  ) {
-				pw.println ( RR.getHouseList().get(i).getName() );
-				pw.println ( "存在家電" );
-				for ( int j = 0; j < RR.getHouseList().get(i).getHAList().size(); j++ ) {
-					HAdata A1 = RR.getHouseList().get(i).getHAList().get(j);
-					pw.print ( "ID： " + A1.getID() + " " );
-					pw.print ( "名前： " + A1.getName() + " " );
-					pw.print ( "耐久度： " + A1.getDurability() + " " );
-					pw.print ( "現在の値段" + A1.getTermValue() + " " );
-					pw.print ( "交換回数" + A1.getExchangecount() + " " );
-					pw.println();
-				}
-			}
+			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file, true ) ) );
+			pw.println ( ",売りたい家の数," + SellNum+ ",買いたい家の数," + BuyNum + "," );
 			pw.close();
 		} catch ( IOException e ) {
 			System.err.println ( "File cannot be Writed." );
 		} //printlnの用意
-		
-		
+	}
+	public void WriteOut ( Score ReuseTarget ) {
+		PrintWriter pw;
 		try {
-			for ( int i = 0; i < RR.getHouseList().size(); i++  ) {
-				for ( int j = 0; j < RR.getHouseList().get(i).getHAList().size(); j++ ) {
-					HAdata A1 = RR.getHouseList().get(i).getHAList().get(j);
-					File file1 = new File ( ".\\recycle\\WriteOut\\WritedOutlog"+ A1.getID() +"_data.txt" ); //書き込むファイル名
-					pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file1, true ) ) );
-					pw.println( "=============" + Term + "ターム目=============" );
-					pw.println( RR.getHouseList().get(i).getName() );
-					pw.close();
-				}
-			}
+			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file, true ) ) );
+			pw.println ( "," + ReuseTarget.getBuyHouse().getName() + "," +ReuseTarget.getSellHouse().getName() + "," + ReuseTarget.getDist() + "," + ReuseTarget.getScoreforSell()+ "," );
+			pw.close();
 		} catch ( IOException e ) {
 			System.err.println ( "File cannot be Writed." );
 		} //printlnの用意
-		
+	}
+	public void Adjust( int SellNum, int BuyNum ) { //お見合い参加人数
+		PrintWriter pw;
+		try {
+			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file, true ) ) );
+			pw.println ( ",売れた家の数," + SellNum+ ",買えた家の数," + BuyNum + "," );
+			pw.println ( ",買い取りする家,売る家,そこまでの距離,売買価格," );
+			pw.close();
+		} catch ( IOException e ) {
+			System.err.println ( "File cannot be Writed." );
+		} //printlnの用意
+	}
+	public void None() { //取引なしの書き出し
+		PrintWriter pw;
+		try {
+			pw = new PrintWriter (new BufferedWriter ( new FileWriter ( file, true ) ) );
+			pw.println ( "取引なし" );
+			pw.close();
+		} catch ( IOException e ) {
+			System.err.println ( "File cannot be Writed." );
+		} //printlnの用
 	}
 }
 
