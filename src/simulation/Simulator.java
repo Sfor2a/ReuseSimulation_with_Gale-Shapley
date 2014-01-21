@@ -567,8 +567,8 @@ public class Simulator extends HouseElements {
 		List < Score > SellScoreSortor = getScoreList(); //売る側の並び替えようリスト
 		Collections.sort ( SellScoreSortor, new SellScoreComparator () ); //売る側のスコアで並び替えする
 		for ( int i = 0; i < SellHouse.size(); i++ ) { //最初から順に売る側の選好表を作成する
+			n = 0; //毎回リセットしなさい
 			for ( int j = 0; j < SellScoreSortor.size(); j++ ) {
-				n = 0; //毎回リセットしなさい
 				if ( SellScoreSortor.get ( j ).getSellHouse () == SellHouse.get ( i ) ) {
 					int m = BuyHouse.indexOf ( SellScoreSortor.get ( j ).getBuyHouse () ); //相手の家が買う家リストのm番目に該当するかをしらべる
 					SellQ[i][n] = m; //好きな人が分かるので書き込み
@@ -579,6 +579,9 @@ public class Simulator extends HouseElements {
 		BuyScoreSortor.clear(); //並び替えようリストのクリア
 		SellScoreSortor.clear();
 		SellQRev = RevMaker ( SellQ, SellQRev ); //逆選考表の作成
+		QView ( BuyQ );
+		QView ( SellQ );
+		QView ( SellQRev );
 	}
 	private int[][] RevMaker ( int[][] peopleQ, int[][] QRev ) { //逆選考表をつくるよ
 		for ( int i = 0; i < peopleQ.length; i++ ) {
@@ -686,6 +689,18 @@ public class Simulator extends HouseElements {
 		SellHouse.clear();
 		ScoreList.clear(); //スコアリストをクリア
 	}
+	
+	private void QView ( int[][] View ) { //選考表の表示
+		for ( int i = 0; i < View.length; i++ ) {
+			System.out.print ( i + " {\t" );
+			for ( int j = 0; j < View[0].length; j++ ) {
+				System.out.print( View[i][j] + "\t" );
+			}
+			System.out.println("}");
+		}
+		System.out.println();
+	}
+	
 	//シミュレータ本体
 	public void SimulationStart () { //冷蔵庫に限定したシミュレーション実行部
 		//お見合いエントリー
