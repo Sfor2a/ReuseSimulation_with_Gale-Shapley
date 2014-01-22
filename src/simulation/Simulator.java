@@ -554,6 +554,7 @@ public class Simulator extends HouseElements {
 	private void preferanceSheetCreator () { //選考表作成
 		List < Score > BuyScoreSortor = getScoreList(); //買う側の並び替えようリスト
 		Collections.sort ( BuyScoreSortor, new BuyScoreComparator () ); //買う側のスコアで並び替えする
+		Collections.reverse ( BuyScoreSortor ); //このままだと照準なので子運順にする
 		int n = 0; //加算用n
 		for ( int i = 0; i < BuyHouse.size(); i++ ) { //マズは最初から順に買う側の選好表を作成する
 			n = 0; //毎回リセットしなさい
@@ -568,6 +569,7 @@ public class Simulator extends HouseElements {
 		n = 0; //nのリセット
 		List < Score > SellScoreSortor = getScoreList(); //売る側の並び替えようリスト
 		Collections.sort ( SellScoreSortor, new SellScoreComparator () ); //売る側のスコアで並び替えする
+		Collections.reverse ( SellScoreSortor ); //こっちも降順にする
 		for ( int i = 0; i < SellHouse.size(); i++ ) { //最初から順に売る側の選好表を作成する
 			n = 0; //毎回リセットしなさい
 			for ( int j = 0; j < SellScoreSortor.size(); j++ ) {
