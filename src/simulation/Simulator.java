@@ -78,7 +78,7 @@ public class Simulator extends HouseElements {
 	public Simulator() { //データの読み込み
 		//地図と家の作成
 		String HouseListData = ".\\recycle\\Houselist.txt";
-		String MapListData = ".\\recycle\\Maptokyo.txt";
+		String MapListData = ".\\recycle\\SqMap.txt";
 		createHousedatafromFile ( HouseListData );
 		createMapfromFile ( MapListData );
 		CreateMapMatrix(); //地図行列作成　いこうRouteArray[][]が地図行列になる
@@ -436,7 +436,9 @@ public class Simulator extends HouseElements {
 						if ( Count >= 5 ) { //条件2：nターム以上つかったら飽きる　今は5
 							int ran = rnd.nextInt(100); //0～99までのうち１つを生成
 							if ( ran > 0 && ran < 49 ) { //条件2続き:n%の確率でターゲットをかいたいと思う家に指定 現在50%
-								if ( BuyHouse.size() == 0 ) BuyHouse.add(Target); //BuyHouseが空なら追加
+								if ( BuyHouse.size() == 0 ) {
+									BuyHouse.add(Target); //BuyHouseが空なら追加
+								}
 								else { //そうでなければ
 									if ( BuyHouse.indexOf ( Target ) == -1 ) BuyHouse.add(Target); //すでにターゲットが追加されていない場合に限り追加
 								}
@@ -523,10 +525,10 @@ public class Simulator extends HouseElements {
 		
 		//距離の呼び出し
 		int Dist = MARange ( Buy1, Sell1 );
-		//スコア作成 （スペックの割合＊耐久度＊取引価格の割合＊距離）
-		double ValuePercent = ( ( double ) setSellValue / ( double ) setBuyCost ) * 100;
-		double SpecPercent = ( ( double ) setSellSpec / ( double ) setBuySpec ) * 100;
-		int ScoreBuy = ( ( int ) ValuePercent * ( int ) SpecPercent * Dist * ( 100 / setSellDur ) ); //買う側の相手へのスコア
+		//スコア作成 （スペック差の割合＊耐久度＊取引価格の割合＊距離）
+		double ValuePercent = ( ( double ) Math.abs( ( ( double ) setSellValue - (double) setBuyCost ) ) / ( double ) setBuyCost );
+		double SpecPercent = ( ( double ) Math.abs ( ( double ) setSellSpec -  ( double )setBuySpec )  / ( double ) setBuySpec );
+		int ScoreBuy = ( int ) ( ( double ) ( 1 / ValuePercent ) + ( double ) ( 1 / SpecPercent ) + Dist + ( 100 - setSellDur ) ); //買う側の相手へのスコア
 		if ( ScoreCheckerBuy.size() == 0 ) {
 			ScoreCheckerBuy.add ( ScoreBuy ); //ダブってるスコアがないように加算する部分　スコアチェッカーが空ならチェッカーに追加
 		}
@@ -656,16 +658,17 @@ public class Simulator extends HouseElements {
 				if ( ReuseTarget !=null ) { //スコアリストから売却する家と購入する家の対象を探す
 					int BuyHouseNum = getHouseList ().indexOf ( ReuseTarget.getBuyHouse () ); //買う家を探す
 					int SellHouseNum = getHouseList ().indexOf ( ReuseTarget.getSellHouse () ); //売る家を探す
-					System.out.println(SellHouseNum+"うる,かう"+BuyHouseNum);
 					int SellHANum = getHouseList ().get ( SellHouseNum ).getHAList ().indexOf ( ReuseTarget.getSellHA() ); //売却家電を探す
-					getHouseList ().get ( SellHouseNum ).getHAList ().get ( SellHANum ).setUseTernCount ( 0 ); //使用対象が移動するので使用回数をリセット
-					getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).setExchangecount ( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).getExchangecount () + 1 ); //リユース回数を増やす
-					getHouseList ().get( BuyHouseNum ).setHAdata( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ) ); //リユース対象家電を移動
-					getHouseList ().get( SellHouseNum ).getHAList ().remove ( SellHANum ); //移動終了
-					getHouseList ().get( BuyHouseNum ).setCoin ( getHouseList ().get( BuyHouseNum ).getCoin() - ReuseTarget.getScoreforSell() ); //お金の支払い
-					getHouseList ().get( SellHouseNum ).setCoin ( getHouseList ().get( SellHouseNum ).getCoin() + ReuseTarget.getScoreforSell() ); //お金の受け取り
-					//データ書き出し部
-					WOD.WriteOut( ReuseTarget );
+					if ( SellHANum != -1 ) {
+						getHouseList ().get ( SellHouseNum ).getHAList ().get ( SellHANum ).setUseTernCount ( 0 ); //使用対象が移動するので使用回数をリセット
+						getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).setExchangecount ( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ).getExchangecount () + 1 ); //リユース回数を増やす
+						getHouseList ().get( BuyHouseNum ).setHAdata( getHouseList ().get ( SellHouseNum ).getHAList ().get( SellHANum ) ); //リユース対象家電を移動
+						getHouseList ().get( SellHouseNum ).getHAList ().remove ( SellHANum ); //移動終了
+						getHouseList ().get( BuyHouseNum ).setCoin ( getHouseList ().get( BuyHouseNum ).getCoin() - ReuseTarget.getScoreforSell() ); //お金の支払い
+						getHouseList ().get( SellHouseNum ).setCoin ( getHouseList ().get( SellHouseNum ).getCoin() + ReuseTarget.getScoreforSell() ); //お金の受け取り
+						//データ書き出し部
+						WOD.WriteOut( ReuseTarget );
+					}
 				}
 			}
 		}
