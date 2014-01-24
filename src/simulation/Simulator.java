@@ -669,7 +669,15 @@ public class Simulator extends HouseElements {
 						getHouseList ().get( BuyHouseNum ).setCoin ( getHouseList ().get( BuyHouseNum ).getCoin() - ReuseTarget.getScoreforSell() ); //お金の支払い
 						getHouseList ().get( SellHouseNum ).setCoin ( getHouseList ().get( SellHouseNum ).getCoin() + ReuseTarget.getScoreforSell() ); //お金の受け取り
 						//データ書き出し部
-						WOD.WriteOut( ReuseTarget );
+						int KK = 0;
+						int JJ = 0;
+						for ( int k = 0; k < BuyQ[i].length; k++ ) {
+							if ( BuyQ[i][k] == BuyS[i] ) KK = k; //買い手はk番目に好きな人とリユースした
+						}
+						for ( int k = 0; k < SellQ[i].length; k++ ) {
+							if ( SellQ[i][k] == SellS[BuyS[i]] ) JJ = k; //売り手はk番目に好きな人とリユースした
+						}
+						WOD.WriteOut( ReuseTarget, KK+1, JJ+1 );
 					}
 				}
 			}
@@ -740,6 +748,7 @@ public class Simulator extends HouseElements {
 		//ターン終了処理
 		MinusDurAllHA(); //耐久度をへらし使用回数を増やすなど
 		ClearList(); //リストを空にする
+		WOD.WriteDist();
 		System.out.println("ターンエンド");
 	}
 }
